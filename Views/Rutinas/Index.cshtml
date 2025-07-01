@@ -1,0 +1,25 @@
+﻿@model Rutina
+@{
+    ViewData["Title"] = "Mi rutina";
+    Layout = "_Layout";
+}
+
+<h2>Mi rutina de entrenamiento</h2>
+
+@if (Model == null)
+{
+    <div class="alert alert-info">
+        No tienes una rutina generada aún.
+    </div>
+    <a href="/Rutinas/Create" class="btn btn-primary">Generar rutina</a>
+}
+else
+{
+    <div class="alert alert-success">
+        Rutina generada el: @Model.FechaCreacion.ToString("dd/MM/yyyy")
+    </div>
+
+    <pre>@Model.RutinaGenerada</pre>
+
+    <a href="/Rutinas/Create" class="btn btn-warning mt-2">Reiniciar rutina</a>
+}

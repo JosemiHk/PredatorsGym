@@ -1,0 +1,16 @@
+﻿@model PredatorsGym.Models.Rutina
+@{
+    ViewData["Title"] = "Rutina Generada";
+    Layout = "_Layout";
+}
+
+<p class="text-muted">Vista: RutinaGenerada.cshtml</p>
+
+<h2>Tu rutina personalizada</h2>
+
+<pre>
+    @Model.RutinaGenerada
+</pre>
+
+<a class="btn btn-secondary mt-3" asp-action="Create">Volver a generar</a>
+    

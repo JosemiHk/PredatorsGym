@@ -1,0 +1,89 @@
+﻿@model PredatorsGym.Models.Rutina
+@{
+    ViewData["Title"] = "Generar Rutina";
+    Layout = "_Layout";
+}
+
+<h2>Generar Rutina</h2>
+
+<form asp-action="GenerarRutina" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="Genero" class="form-label"></label>
+        <input asp-for="Genero" class="form-control" />
+        <span asp-validation-for="Genero" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Edad" class="form-label"></label>
+        <input asp-for="Edad" class="form-control" type="number" />
+        <span asp-validation-for="Edad" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Altura" class="form-label"></label>
+        <input asp-for="Altura" class="form-control" step="0.01" />
+        <span asp-validation-for="Altura" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Peso" class="form-label"></label>
+        <input asp-for="Peso" class="form-control" step="0.01" />
+        <span asp-validation-for="Peso" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Objetivo" class="form-label"></label>
+        <select asp-for="Objetivo" class="form-select">
+            <option>Perder peso</option>
+            <option>Desarrollo muscular</option>
+        </select>
+        <span asp-validation-for="Objetivo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Experiencia" class="form-label"></label>
+        <select asp-for="Experiencia" class="form-select">
+            <option>Principiante</option>
+            <option>Intermedio</option>
+            <option>Avanzado</option>
+        </select>
+        <span asp-validation-for="Experiencia" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PesoObjetivo" class="form-label"></label>
+        <input asp-for="PesoObjetivo" class="form-control" step="0.01" />
+        <span asp-validation-for="PesoObjetivo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LugarEntrenamiento" class="form-label"></label>
+        <select asp-for="LugarEntrenamiento" class="form-select">
+            <option>Casa</option>
+            <option>Gimnasio</option>
+            <option>Ambos</option>
+        </select>
+        <span asp-validation-for="LugarEntrenamiento" class="text-danger"></span>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="TieneImplementosBasicos" class="form-check-input" type="checkbox" />
+        <label asp-for="TieneImplementosBasicos" class="form-check-label">Tengo implementos básicos</label>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DiasEntrenamiento" class="form-label"></label>
+        <input asp-for="DiasEntrenamiento" class="form-control" />
+        <span asp-validation-for="DiasEntrenamiento" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Generar Rutina</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
