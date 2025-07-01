@@ -12,8 +12,8 @@ using PredatorsGym.Datos;
 namespace PredatorsGym.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250701005435_Inicial")]
-    partial class Inicial
+    [Migration("20250701190550_Prueba1JM")]
+    partial class Prueba1JM
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

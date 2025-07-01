@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Stalin\\Desktop\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {}
+    "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Stalin\\Desktop\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {
+    "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Stalin\\Desktop\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
+        "projectUniqueName": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
         "projectName": "PredatorsGym",
-        "projectPath": "C:\\Users\\Stalin\\Desktop\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
-        "packagesPath": "C:\\Users\\Stalin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Stalin\\Desktop\\PredatorsGym\\PredatorsGym\\obj\\",
+        "projectPath": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
+        "packagesPath": "C:\\Users\\josem\\.nuget\\packages\\",
+        "outputPath": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Stalin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\josem\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -96,7 +96,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

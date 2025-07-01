@@ -53,20 +53,18 @@ namespace PredatorsGym.Controllers
             model.EstadoIMC = CalcularEstadoIMC(model.IMC);
 
             var prompt = $@"
-Eres un entrenador personal profesional. Crea una rutina de entrenamiento en español para una persona con las siguientes características:
+Eres un entrenador fitness/gym profesional. Crea una rutina presonalizada de entrenamiento en español para una persona con las siguientes características:
 
 - Edad: {model.Edad}, Género: {model.Genero}, Experiencia: {model.Experiencia}, Objetivo: {model.Objetivo}, Peso actual: {model.Peso}kg, Peso objetivo: {model.PesoObjetivo}kg, Altura: {model.Altura}m, Lugar: {model.LugarEntrenamiento}, Tiene implementos básicos: {(model.TieneImplementosBasicos ? "Sí" : "No")}
 
 Crea una rutina semanal (7 días) pero resume cada día con:
-
 1. Nombre del día
 2. 1 ejercicio principal (nombre, series, repeticiones)
 3. Breve calentamiento (máx 1 línea)
 4. Estiramiento
 5. Una sola recomendación
 6. Usa emojis si caben
-
-No expliques ni introduzcas demasiado. Solo rutina. Hazlo breve para ahorrar espacio. No te pases de 2048 tokens.
+No expliques ni introduzcas demasiado. Solo rutina. Hazlo breve para ahorrar espacio. El máximo es de 2048 tokens.
 ";
 
             model.RutinaGenerada = await _cohereService.GenerarTextoAsync(prompt);
