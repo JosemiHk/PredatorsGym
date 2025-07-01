@@ -912,3 +912,4 @@ E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.pdb
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.genruntimeconfig.cache
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\ref\PredatorsGym.dll
+E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
