@@ -1,24 +1,81 @@
-/* ==================== VARIABLES CSS ==================== */
+/* ==================== VARIABLES COMPARTIDAS ==================== */
 :root {
-  --primary-red: #F24150;
-  --dark-red: #A62D37;
-  --muted-red: #734951;
-  --accent-red: #F24141;
-  --dark-bg: #0D0D0D;
-  --white: #FFFFFF;
-  --light-gray: #F8F9FA;
-  --medium-gray: #6C757D;
-  --border-gray: #DEE2E6;
-  
-  /* Sombras */
-  --shadow-sm: 0 1px 3px rgba(13, 13, 13, 0.12);
-  --shadow-md: 0 4px 6px rgba(13, 13, 13, 0.15);
-  --shadow-lg: 0 10px 25px rgba(13, 13, 13, 0.2);
+  /* Sombras universales */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.2);
   
   /* Transiciones */
   --transition-fast: 0.2s ease;
   --transition-smooth: 0.3s ease;
+  
+  /* Espaciado y dimensiones */
+  --border-radius-sm: 0.5rem;
+  --border-radius-md: 0.75rem;
+  --border-radius-lg: 1rem;
+  
+  /* Z-index */
+  --z-navbar: 1030;
+  --z-modal: 1040;
+  --z-tooltip: 1050;
 }
+
+/* ==================== TEMA CLARO (ACTIVO) ==================== */
+.theme-light {
+  /* Colores principales */
+  --primary-red: #EF233C;
+  --dark-red: #2B2D42;
+  --accent-red: #FF6B6B;
+  --green-success: #38B000;
+  
+  /* Colores neutros - ACTUALIZADOS para mayor suavidad visual */
+  --white: #FAFBFC;                    /* Fondo suave en lugar de blanco puro */
+  --white-pure: #FFFFFF;               /* Blanco puro para elementos que lo necesiten */
+  --dark-bg: #1A1A1A;
+  --light-gray: #F5F6F8;               /* Gris secundario más suave */
+  --medium-gray: #6C757D;
+  --border-gray: #E8EAED;              /* Bordes más suaves */
+  
+  /* Colores específicos del tema claro */
+  --bg-primary: var(--white);
+  --bg-secondary: var(--light-gray);
+  --text-primary: var(--dark-bg);
+  --text-secondary: var(--medium-gray);
+  --text-inverse: var(--white-pure);   /* Texto inverso usa blanco puro para contraste */
+  
+  /* Sombras adaptadas al tema */
+  --theme-shadow-sm: 0 1px 3px rgba(26, 26, 26, 0.08);     /* Sombras más suaves */
+  --theme-shadow-md: 0 4px 6px rgba(26, 26, 26, 0.12);
+  --theme-shadow-lg: 0 10px 25px rgba(26, 26, 26, 0.15);
+}
+
+/* ==================== TEMA OSCURO (PREPARADO) ==================== */
+/* 
+.theme-dark {
+  // Variables de tema oscuro - implementar en el futuro
+  --primary-red: #EF233C;
+  --dark-red: #2B2D42;
+  --accent-red: #FF6B6B;
+  --green-success: #38B000;
+  
+  --white: #1A1A1A;
+  --white-pure: #000000;
+  --dark-bg: #F4F4F4;
+  --light-gray: #2A2A2A;
+  --medium-gray: #A0A0A0;
+  --border-gray: #404040;
+  
+  --bg-primary: var(--white);
+  --bg-secondary: var(--light-gray);
+  --text-primary: var(--dark-bg);
+  --text-secondary: var(--medium-gray);
+  --text-inverse: var(--white-pure);
+  
+  --theme-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --theme-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.35);
+  --theme-shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+*/
 
 /* ==================== RESET Y BASE ==================== */
 * {
@@ -39,29 +96,32 @@ html {
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  color: var(--dark-bg);
-  background-color: var(--white);
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   margin: 0;
   padding: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background-color var(--transition-smooth), color var(--transition-smooth);
 }
 
 /* ==================== NAVEGACIÓN REDISEÑADA ==================== */
 .navbar {
   background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%) !important;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--theme-shadow-md);
   padding: 0.75rem 1rem;
   transition: var(--transition-smooth);
+  z-index: var(--z-navbar);
 }
 
 .navbar-brand {
   font-weight: 700;
   font-size: 1.5rem;
-  color: var(--white) !important;
+  color: var(--text-inverse) !important;
   text-decoration: none;
   letter-spacing: -0.02em;
+  transition: var(--transition-fast);
 }
 
 .navbar-brand:hover {
@@ -70,10 +130,10 @@ body {
 }
 
 .navbar-nav .nav-link {
-  color: var(--white) !important;
+  color: var(--text-inverse) !important;
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-sm);
   transition: var(--transition-fast);
   margin: 0 0.25rem;
 }
@@ -94,7 +154,7 @@ body {
 
 /* ==================== BOTONES REDISEÑADOS ==================== */
 .btn {
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-md);
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   transition: var(--transition-smooth);
@@ -104,66 +164,81 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  cursor: pointer;
 }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--primary-red) 0%, var(--accent-red) 100%);
-  color: var(--white);
-  box-shadow: var(--shadow-md);
+  color: var(--text-inverse);
+  box-shadow: var(--theme-shadow-md);
 }
 
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--accent-red) 0%, var(--dark-red) 100%);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  color: var(--white);
+  box-shadow: var(--theme-shadow-lg);
+  color: var(--text-inverse);
 }
 
 .btn-secondary {
-  background-color: var(--muted-red);
-  color: var(--white);
-  box-shadow: var(--shadow-sm);
+  background-color: var(--medium-gray);
+  color: var(--text-inverse);
+  box-shadow: var(--theme-shadow-sm);
 }
 
 .btn-secondary:hover {
   background-color: var(--dark-red);
   transform: translateY(-1px);
-  color: var(--white);
+  color: var(--text-inverse);
 }
 
 .btn-outline-light {
   border: 2px solid rgba(255, 255, 255, 0.3);
-  color: var(--white);
+  color: var(--text-inverse);
   background: transparent;
 }
 
 .btn-outline-light:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  border-color: var(--white);
-  color: var(--white);
+  border-color: var(--text-inverse);
+  color: var(--text-inverse);
+}
+
+.btn-success {
+  background-color: var(--green-success);
+  color: var(--text-inverse);
+  box-shadow: var(--theme-shadow-sm);
+}
+
+.btn-success:hover {
+  background-color: #2E9000;
+  transform: translateY(-1px);
+  color: var(--text-inverse);
 }
 
 /* ==================== FORMULARIOS ==================== */
 .form-control,
 .form-select {
   border: 2px solid var(--border-gray);
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-md);
   padding: 0.75rem 1rem;
   font-size: 1rem;
   transition: var(--transition-fast);
-  background-color: var(--white);
+  background-color: var(--white-pure);    /* Formularios usan blanco puro para mejor contraste */
+  color: var(--text-primary);
 }
 
 .form-control:focus,
 .form-select:focus {
   border-color: var(--primary-red);
-  box-shadow: 0 0 0 0.2rem rgba(242, 65, 80, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(239, 35, 60, 0.25);
   outline: none;
+  background-color: var(--white-pure);
 }
 
 .form-label {
   font-weight: 600;
-  color: var(--dark-bg);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -174,7 +249,7 @@ body {
 
 .form-check-input:focus {
   border-color: var(--primary-red);
-  box-shadow: 0 0 0 0.2rem rgba(242, 65, 80, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(239, 35, 60, 0.25);
 }
 
 /* ==================== CONTENIDO PRINCIPAL ==================== */
@@ -192,12 +267,12 @@ main {
 /* ==================== LANDING PAGE ==================== */
 .hero-section {
   background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
-  color: var(--white);
+  color: var(--text-inverse);
   text-align: center;
   padding: 3rem 1rem;
-  border-radius: 1rem;
+  border-radius: var(--border-radius-lg);
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--theme-shadow-lg);
 }
 
 .hero-title {
@@ -230,10 +305,10 @@ main {
 
 /* Tarjetas de características */
 .feature-card {
-  background: var(--white);
-  border-radius: 1rem;
+  background: var(--white-pure);          /* Tarjetas usan blanco puro para destacar */
+  border-radius: var(--border-radius-lg);
   padding: 2rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--theme-shadow-md);
   text-align: center;
   transition: var(--transition-smooth);
   border: 1px solid var(--border-gray);
@@ -242,7 +317,7 @@ main {
 
 .feature-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--theme-shadow-lg);
 }
 
 .feature-icon {
@@ -255,41 +330,71 @@ main {
   justify-content: center;
   margin: 0 auto 1rem;
   font-size: 1.5rem;
-  color: var(--white);
+  color: var(--text-inverse);
 }
 
 .feature-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--dark-bg);
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
 .feature-description {
-  color: var(--medium-gray);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
 /* ==================== FOOTER ==================== */
 footer {
   background-color: var(--dark-bg);
-  color: var(--white);
+  color: var(--text-inverse);
   text-align: center;
   padding: 2rem 1rem;
   margin-top: auto;
 }
 
-/* ==================== UTILIDADES ==================== */
+/* ==================== UTILIDADES TEMÁTICAS ==================== */
 .text-primary {
   color: var(--primary-red) !important;
+}
+
+.text-success {
+  color: var(--green-success) !important;
+}
+
+.text-accent {
+  color: var(--accent-red) !important;
 }
 
 .bg-primary {
   background-color: var(--primary-red) !important;
 }
 
+.bg-success {
+  background-color: var(--green-success) !important;
+}
+
 .border-primary {
   border-color: var(--primary-red) !important;
+}
+
+/* Backgrounds adaptativos */
+.bg-light-theme {
+  background-color: var(--bg-secondary) !important;
+}
+
+.text-theme-primary {
+  color: var(--text-primary) !important;
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Clase especial para elementos que necesiten fondo blanco puro */
+.bg-white-pure {
+  background-color: var(--white-pure) !important;
 }
 
 /* Espaciado responsivo */
@@ -334,11 +439,22 @@ footer {
   }
 }
 
-/* Focus personalizado */
+/* ==================== FOCUS PERSONALIZADO ==================== */
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
 .form-control:focus,
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.2rem rgba(242, 65, 80, 0.25);
+  box-shadow: 0 0 0 0.2rem rgba(239, 35, 60, 0.25);
 }
+
+/* ==================== PREPARACIÓN PARA ALTERNAR TEMAS ==================== */
+/* 
+  NOTA PARA DESARROLLO FUTURO:
+  - Agregar toggle button en navbar o settings
+  - Implementar localStorage para persistir preferencia
+  - JavaScript para alternar entre .theme-light y .theme-dark en body
+  
+  Ejemplo de implementación futura:
+  document.body.className = document.body.className.replace(/theme-\w+/, 'theme-dark');
+*/
