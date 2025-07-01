@@ -14,6 +14,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
+    // Configuraciones adicionales para desarrollo
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -26,6 +32,21 @@ builder.Services.AddControllersWithViews()
 builder.Services.AddScoped<ICohereService, CohereService>();
 
 var app = builder.Build();
+
+// Inicializar roles automáticamente
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        await InicializadorRoles.CrearRolesIniciales(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Un error ocurrió al inicializar los roles.");
+    }
+}
 
 // Middleware y pipeline HTTP
 if (!app.Environment.IsDevelopment())

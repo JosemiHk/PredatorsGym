@@ -906,7 +906,6 @@ E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.build.json.cache
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.development.json
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\Predator.AFD50077.Up2Date
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\refint\PredatorsGym.dll
