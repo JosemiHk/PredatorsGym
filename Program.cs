@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PredatorsGym.Datos;
-using PredatorsGym.Servicios;
-using System.Text.Json.Serialization;
+using PredatorsGym.Servicios; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +13,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
-    // Configuraciones adicionales para desarrollo
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
@@ -28,8 +26,8 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-// Servicio para Cohere
-builder.Services.AddScoped<ICohereService, CohereService>();
+//  Azure OpenAI Service con HttpClient
+builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
 
 var app = builder.Build();
 

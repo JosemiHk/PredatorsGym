@@ -763,6 +763,7 @@ E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\refs\System.Xml.XPath.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\refs\System.Xml.XPath.XDocument.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\refs\WindowsBase.dll
+E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Azure.AI.OpenAI.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Azure.Core.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Azure.Identity.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Humanizer.dll
@@ -806,6 +807,8 @@ E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Microsoft.SqlServer.Server.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\Mono.TextTemplating.dll
+E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\OpenAI.dll
+E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\OpenAI-DotNet.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\System.ClientModel.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\System.CodeDom.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\bin\Debug\net8.0\System.Composition.AttributedModel.dll
@@ -906,10 +909,10 @@ E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.build.json.cache
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.development.json
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\Predator.AFD50077.Up2Date
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\refint\PredatorsGym.dll
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.pdb
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\PredatorsGym.genruntimeconfig.cache
 E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\ref\PredatorsGym.dll
-E:\00_PROYECTOS JM\PROYECTOS 2025-2\DAS-Gym\PredatorsGym\PredatorsGym\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

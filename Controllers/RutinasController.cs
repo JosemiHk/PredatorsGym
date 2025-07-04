@@ -13,15 +13,18 @@ namespace PredatorsGym.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ICohereService _cohereService;
+        private readonly IAzureOpenAIService _azureOpenAIService;
+        private readonly ILogger<RutinasController> _logger;
 
         public RutinasController(ApplicationDbContext context,
                                  UserManager<IdentityUser> userManager,
-                                 ICohereService cohereService)
+                                 IAzureOpenAIService azureOpenAIService,
+                                 ILogger<RutinasController> logger)
         {
             _context = context;
             _userManager = userManager;
-            _cohereService = cohereService;
+            _azureOpenAIService = azureOpenAIService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -46,33 +49,58 @@ namespace PredatorsGym.Controllers
                 return View("Create", model);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            model.UsuarioId = user.Id;
-            model.FechaCreacion = DateTime.Now;
-            model.IMC = model.Peso / (model.Altura * model.Altura);
-            model.EstadoIMC = CalcularEstadoIMC(model.IMC);
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                model.UsuarioId = user.Id;
+                model.FechaCreacion = DateTime.Now;
 
-            var prompt = $@"
-Eres un entrenador fitness/gym profesional. Crea una rutina presonalizada de entrenamiento en español para una persona con las siguientes características:
+                // ✅ CÁLCULO CORREGIDO DEL IMC
+                model.IMC = CalcularIMC(model.Peso, model.Altura);
+                model.EstadoIMC = CalcularEstadoIMC(model.IMC);
 
-- Edad: {model.Edad}, Género: {model.Genero}, Experiencia: {model.Experiencia}, Objetivo: {model.Objetivo}, Peso actual: {model.Peso}kg, Peso objetivo: {model.PesoObjetivo}kg, Altura: {model.Altura}m, Lugar: {model.LugarEntrenamiento}, Tiene implementos básicos: {(model.TieneImplementosBasicos ? "Sí" : "No")}
+                // 🔄 NUEVO PROMPT OPTIMIZADO PARA AZURE OPENAI
+                var prompt = $@"
+Necesito una rutina de entrenamiento personalizada para las siguientes características:
 
-Crea una rutina semanal (7 días) pero resume cada día con:
-1. Nombre del día
-2. 1 ejercicio principal (nombre, series, repeticiones)
-3. Breve calentamiento (máx 1 línea)
-4. Estiramiento
-5. Una sola recomendación
-6. Usa emojis si caben
-No expliques ni introduzcas demasiado. Solo rutina. Hazlo breve para ahorrar espacio. El máximo es de 2048 tokens.
+📊 DATOS PERSONALES:
+- Edad: {model.Edad} años
+- Género: {model.Genero}
+- Peso actual: {model.Peso} kg
+- Altura: {model.Altura} cm
+- IMC: {model.IMC:F1} ({model.EstadoIMC})
+- Peso objetivo: {model.PesoObjetivo} kg
+
+🎯 OBJETIVOS Y EXPERIENCIA:
+- Objetivo principal: {model.Objetivo}
+- Nivel de experiencia: {model.Experiencia}
+- Días de entrenamiento semanales: {model.DiasEntrenamiento}
+
+🏋️ CONDICIONES DE ENTRENAMIENTO:
+- Lugar de entrenamiento: {model.LugarEntrenamiento}
+- Implementos básicos disponibles: {(model.TieneImplementosBasicos ? "Sí (mancuernas, bandas, etc.)" : "No, solo peso corporal")}
+
+Por favor crea una rutina completa y personalizada considerando estos factores.
 ";
 
-            model.RutinaGenerada = await _cohereService.GenerarTextoAsync(prompt);
+                _logger.LogInformation("Generando rutina para usuario {UserId} con Azure OpenAI", user.Id);
 
-            _context.Rutinas.Add(model);
-            await _context.SaveChangesAsync();
+                // 🚀 LLAMADA A AZURE OPENAI
+                model.RutinaGenerada = await _azureOpenAIService.GenerarRutinaPersonalizadaAsync(prompt);
 
-            return View("RutinaGenerada", model);
+                _context.Rutinas.Add(model);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Rutina generada y guardada exitosamente para usuario {UserId}", user.Id);
+
+                return View("RutinaGenerada", model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al generar rutina para usuario");
+                ModelState.AddModelError("", "Hubo un error al generar tu rutina. Por favor intenta nuevamente.");
+                return View("Create", model);
+            }
         }
 
         [HttpGet]
@@ -96,11 +124,47 @@ No expliques ni introduzcas demasiado. Solo rutina. Hazlo breve para ahorrar esp
             return View(rutina);
         }
 
+        /// <summary>
+        /// Calcula el Índice de Masa Corporal (IMC) según la fórmula estándar de la OMS
+        /// </summary>
+        /// <param name="pesoKg">Peso en kilogramos</param>
+        /// <param name="alturaCm">Altura en centímetros</param>
+        /// <returns>IMC calculado con precisión de 2 decimales</returns>
+        private double CalcularIMC(double pesoKg, double alturaCm)
+        {
+            // Validación de entrada
+            if (pesoKg <= 0 || alturaCm <= 0)
+            {
+                throw new ArgumentException("El peso y la altura deben ser valores positivos");
+            }
+
+            // Convertir altura de centímetros a metros
+            double alturaMetros = alturaCm / 100.0;
+
+            // Fórmula estándar del IMC: peso (kg) / altura² (m²)
+            double imc = pesoKg / (alturaMetros * alturaMetros);
+
+            // Redondear a 2 decimales para precisión clínica
+            return Math.Round(imc, 2);
+        }
+
+        /// <summary>
+        /// Clasifica el IMC según los rangos establecidos por la Organización Mundial de la Salud (OMS)
+        /// </summary>
+        /// <param name="imc">Índice de Masa Corporal calculado</param>
+        /// <returns>Clasificación del estado nutricional</returns>
         private string CalcularEstadoIMC(double imc)
         {
-            return imc < 18.5 ? "Bajo peso" :
-                   imc < 25 ? "Normal" :
-                   imc < 30 ? "Sobrepeso" : "Obesidad";
+            return imc switch
+            {
+                < 18.5 => "Bajo peso",
+                >= 18.5 and < 25.0 => "Normal",
+                >= 25.0 and < 30.0 => "Sobrepeso",
+                >= 30.0 and < 35.0 => "Obesidad grado I",
+                >= 35.0 and < 40.0 => "Obesidad grado II",
+                >= 40.0 => "Obesidad grado III",
+                _ => "Valor inválido"
+            };
         }
     }
 }
