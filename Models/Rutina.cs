@@ -45,5 +45,38 @@ namespace PredatorsGym.Models
         public string RutinaGenerada { get; set; }
 
         public DateTime FechaCreacion { get; set; }
+
+        // 🆕 NUEVAS PROPIEDADES PARA WORKOUT
+        /// <summary>
+        /// Duración total estimada de la rutina en minutos
+        /// </summary>
+        public int DuracionTotalMinutos { get; set; }
+
+        /// <summary>
+        /// Estado de la rutina (Creada, EnProgreso, Completada, Pausada)
+        /// </summary>
+        public EstadoRutina Estado { get; set; } = EstadoRutina.Creada;
+
+        /// <summary>
+        /// Fecha y hora de inicio del entrenamiento
+        /// </summary>
+        public DateTime? FechaInicioEntrenamiento { get; set; }
+
+        /// <summary>
+        /// Fecha y hora de finalización del entrenamiento
+        /// </summary>
+        public DateTime? FechaFinEntrenamiento { get; set; }
+
+        // 🆕 NAVEGACIÓN A EJERCICIOS
+        public virtual ICollection<Ejercicio> Ejercicios { get; set; } = new List<Ejercicio>();
+    }
+
+    public enum EstadoRutina
+    {
+        Creada,
+        EnProgreso,
+        Pausada,
+        Completada,
+        Cancelada
     }
 }

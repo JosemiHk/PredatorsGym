@@ -4,13 +4,450 @@
     Layout = "_Layout";
 }
 
-<p class="text-muted">Vista: RutinaGenerada.cshtml</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">📋 Tu Rutina Personalizada</h4>
+                    <div>
+                        <button id="startWorkoutBtn" class="btn btn-success btn-lg me-2">
+                            🏋️ Comenzar Entrenamiento
+                        </button>
+                        <button id="pauseWorkoutBtn" class="btn btn-warning" style="display: none;">
+                            ⏸️ Pausar
+                        </button>
+                        <button id="resumeWorkoutBtn" class="btn btn-info" style="display: none;">
+                            ▶️ Reanudar
+                        </button>
+                        <button id="stopWorkoutBtn" class="btn btn-danger" style="display: none;">
+                            ⏹️ Detener
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <strong>📊 IMC:</strong> @Model.IMC.ToString("F1") (@Model.EstadoIMC)
+                        </div>
+                        <div class="col-md-3">
+                            <strong>🎯 Objetivo:</strong> @Model.Objetivo
+                        </div>
+                        <div class="col-md-3">
+                            <strong>💪 Experiencia:</strong> @Model.Experiencia
+                        </div>
+                        <div class="col-md-3">
+                            <strong>📅 Días/semana:</strong> @Model.DiasEntrenamiento
+                        </div>
+                    </div>
 
-<h2>Tu rutina personalizada</h2>
+                    <div class="rutina-content">
+                        <pre class="bg-light p-3 rounded">@Model.RutinaGenerada</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<pre>
-    @Model.RutinaGenerada
-</pre>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🎧 Control de Entrenamiento</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Estado del entrenamiento -->
+                    <div id="workoutStatus" class="alert alert-info">
+                        <strong>Estado:</strong> <span id="statusText">Listo para comenzar</span>
+                    </div>
 
-<a class="btn btn-secondary mt-3" asp-action="Create">Volver a generar</a>
-    
+                    <!-- Ejercicio actual -->
+                    <div id="currentExercise" style="display: none;">
+                        <h6>📍 Ejercicio Actual:</h6>
+                        <div class="card bg-primary text-white mb-3">
+                            <div class="card-body">
+                                <h5 id="exerciseName">-</h5>
+                                <p id="exerciseDetails" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timer/Contador -->
+                    <div id="workoutTimer" style="display: none;">
+                        <h6>⏱️ Tiempo:</h6>
+                        <div class="text-center">
+                            <span id="timerDisplay" class="h4 text-primary">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Descanso -->
+                    <div id="restTimer" style="display: none;" class="text-center">
+                        <h6>😴 Tiempo de Descanso:</h6>
+                        <div class="text-center">
+                            <span id="restDisplay" class="h4 text-warning">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Control de volumen -->
+                    <div class="mb-3">
+                        <label for="volumeControl" class="form-label">🔊 Volumen:</label>
+                        <input type="range" class="form-range" id="volumeControl" min="0" max="100" value="70">
+                        <audio id="workoutAudio" preload="metadata"></audio>
+                    </div>
+
+                    <!-- Log de mensajes -->
+                    <div id="workoutLog" class="mt-3">
+                        <h6>📝 Log de Entrenamiento:</h6>
+                        <div id="logContent" class="border rounded p-2" style="height: 200px; overflow-y: auto; background-color: #f8f9fa;">
+                            <small class="text-muted">Los mensajes de entrenamiento aparecerán aquí...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a class="btn btn-secondary" asp-action="Create">🔄 Generar Nueva Rutina</a>
+    <a class="btn btn-info" asp-action="Index">📊 Mis Rutinas</a>
+</div>
+
+@section Scripts {
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script>
+        // Variables globales
+        let connection;
+        let workoutTimer;
+        let restTimer;
+        let currentRoutineId = @Model.Id;
+        let workoutStartTime;
+        let isWorkoutActive = false;
+
+        // Inicializar SignalR
+        async function initializeSignalR() {
+            connection = new signalR.HubConnectionBuilder()
+                .withUrl("/workoutHub")
+                .withAutomaticReconnect()
+                .build();
+
+            // Eventos del hub
+            connection.on("ReceiveAudio", function (audioData) {
+                playAudio(audioData);
+                logMessage("🎵 Reproduciendo instrucciones de audio...");
+            });
+
+            connection.on("ReceiveExerciseStart", function (exercise) {
+                showCurrentExercise(exercise);
+                logMessage(`🏁 Iniciando: ${exercise.Name} (${exercise.Series}x${exercise.Repetitions})`);
+            });
+
+            connection.on("ReceiveExerciseEnd", function (exercise) {
+                logMessage(`✅ Completado: ${exercise.Name}`);
+            });
+
+            connection.on("ReceiveRestTime", function (rest) {
+                startRestTimer(rest.Duration);
+                logMessage(`😴 Descanso: ${rest.Duration} segundos`);
+            });
+
+            connection.on("ReceiveWorkoutCompleted", function (data) {
+                completeWorkout(data);
+                logMessage(`🎉 ¡Entrenamiento completado! Duración: ${data.Duration.toFixed(1)} minutos`);
+            });
+
+            connection.on("ReceiveWorkoutPaused", function () {
+                pauseWorkout();
+                logMessage("⏸️ Entrenamiento pausado");
+            });
+
+            connection.on("ReceiveWorkoutResumed", function () {
+                resumeWorkout();
+                logMessage("▶️ Entrenamiento reanudado");
+            });
+
+            connection.on("ReceiveError", function (message) {
+                logMessage(`❌ Error: ${message}`, 'error');
+                showError(message);
+            });
+
+            try {
+                await connection.start();
+                logMessage("🔗 Conectado al servidor de entrenamiento");
+
+                // Unirse al grupo de la rutina
+                await connection.invoke("JoinWorkoutGroup", currentRoutineId.toString());
+                logMessage(`👥 Unido al grupo de rutina ${currentRoutineId}`);
+            } catch (err) {
+                logMessage(`❌ Error de conexión: ${err}`, 'error');
+                console.error(err);
+            }
+        }
+
+        // Controles de entrenamiento
+        document.getElementById('startWorkoutBtn').addEventListener('click', async function() {
+            if (!isWorkoutActive) {
+                await startWorkout();
+            }
+        });
+
+        document.getElementById('pauseWorkoutBtn').addEventListener('click', async function() {
+            await pauseWorkout();
+        });
+
+        document.getElementById('resumeWorkoutBtn').addEventListener('click', async function() {
+            await resumeWorkout();
+        });
+
+        document.getElementById('stopWorkoutBtn').addEventListener('click', async function() {
+            await stopWorkout();
+        });
+
+        // Funciones de entrenamiento
+        async function startWorkout() {
+            try {
+                const response = await fetch(`/api/workout/start/${currentRoutineId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    }
+                });
+
+                if (response.ok) {
+                    isWorkoutActive = true;
+                    workoutStartTime = new Date();
+                    updateWorkoutUI('started');
+                    startWorkoutTimer();
+                    logMessage("🚀 ¡Entrenamiento iniciado!");
+                } else {
+                    const error = await response.text();
+                    logMessage(`❌ Error al iniciar: ${error}`, 'error');
+                }
+            } catch (error) {
+                logMessage(`❌ Error de conexión: ${error}`, 'error');
+            }
+        }
+
+        async function pauseWorkout() {
+            try {
+                await fetch(`/api/workout/pause/${currentRoutineId}`, { method: 'POST' });
+                updateWorkoutUI('paused');
+                clearInterval(workoutTimer);
+            } catch (error) {
+                logMessage(`❌ Error al pausar: ${error}`, 'error');
+            }
+        }
+
+        async function resumeWorkout() {
+            try {
+                await fetch(`/api/workout/resume/${currentRoutineId}`, { method: 'POST' });
+                updateWorkoutUI('started');
+                startWorkoutTimer();
+            } catch (error) {
+                logMessage(`❌ Error al reanudar: ${error}`, 'error');
+            }
+        }
+
+        async function stopWorkout() {
+            try {
+                await fetch(`/api/workout/complete/${currentRoutineId}`, { method: 'POST' });
+                completeWorkout({ Message: "Entrenamiento detenido manualmente" });
+            } catch (error) {
+                logMessage(`❌ Error al detener: ${error}`, 'error');
+            }
+        }
+
+        // Funciones auxiliares
+        function playAudio(base64Data) {
+            try {
+                const audio = document.getElementById('workoutAudio');
+                const volume = document.getElementById('volumeControl').value / 100;
+
+                audio.src = `data:audio/mp3;base64,${base64Data}`;
+                audio.volume = volume;
+                audio.play();
+
+                audio.onerror = function() {
+                    logMessage("❌ Error al reproducir audio", 'error');
+                };
+            } catch (error) {
+                logMessage(`❌ Error de audio: ${error}`, 'error');
+            }
+        }
+
+        function showCurrentExercise(exercise) {
+            document.getElementById('currentExercise').style.display = 'block';
+            document.getElementById('exerciseName').textContent = exercise.Name;
+            document.getElementById('exerciseDetails').textContent =
+                `${exercise.Series} series × ${exercise.Repetitions} repeticiones`;
+        }
+
+        function startWorkoutTimer() {
+            workoutTimer = setInterval(function() {
+                if (workoutStartTime) {
+                    const elapsed = new Date() - workoutStartTime;
+                    const minutes = Math.floor(elapsed / 60000);
+                    const seconds = Math.floor((elapsed % 60000) / 1000);
+                    document.getElementById('timerDisplay').textContent =
+                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function startRestTimer(duration) {
+            document.getElementById('restTimer').style.display = 'block';
+            let remaining = duration;
+
+            restTimer = setInterval(function() {
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('restDisplay').textContent =
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                remaining--;
+                if (remaining < 0) {
+                    clearInterval(restTimer);
+                    document.getElementById('restTimer').style.display = 'none';
+                }
+            }, 1000);
+        }
+
+        function updateWorkoutUI(state) {
+            const startBtn = document.getElementById('startWorkoutBtn');
+            const pauseBtn = document.getElementById('pauseWorkoutBtn');
+            const resumeBtn = document.getElementById('resumeWorkoutBtn');
+            const stopBtn = document.getElementById('stopWorkoutBtn');
+            const statusText = document.getElementById('statusText');
+            const workoutTimerDiv = document.getElementById('workoutTimer');
+
+            switch(state) {
+                case 'started':
+                    startBtn.style.display = 'none';
+                    pauseBtn.style.display = 'inline-block';
+                    resumeBtn.style.display = 'none';
+                    stopBtn.style.display = 'inline-block';
+                    statusText.textContent = 'En progreso 💪';
+                    statusText.parentElement.className = 'alert alert-success';
+                    workoutTimerDiv.style.display = 'block';
+                    break;
+                case 'paused':
+                    pauseBtn.style.display = 'none';
+                    resumeBtn.style.display = 'inline-block';
+                    statusText.textContent = 'Pausado ⏸️';
+                    statusText.parentElement.className = 'alert alert-warning';
+                    break;
+                case 'completed':
+                    startBtn.style.display = 'inline-block';
+                    pauseBtn.style.display = 'none';
+                    resumeBtn.style.display = 'none';
+                    stopBtn.style.display = 'none';
+                    statusText.textContent = 'Completado ✅';
+                    statusText.parentElement.className = 'alert alert-success';
+                    isWorkoutActive = false;
+                    clearInterval(workoutTimer);
+                    clearInterval(restTimer);
+                    break;
+            }
+        }
+
+        function completeWorkout(data) {
+            updateWorkoutUI('completed');
+            logMessage(`🏆 ${data.Message}`);
+
+            // Ocultar ejercicio actual
+            document.getElementById('currentExercise').style.display = 'none';
+            document.getElementById('restTimer').style.display = 'none';
+
+            // Mostrar mensaje de felicitación
+            setTimeout(() => {
+                alert('🎉 ¡Felicitaciones! Has completado tu entrenamiento exitosamente.');
+            }, 1000);
+        }
+
+        function logMessage(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            const messageClass = type === 'error' ? 'text-danger' : 'text-dark';
+
+            logContent.innerHTML += `
+                <div class="${messageClass}">
+                    <small class="text-muted">[${timestamp}]</small> ${message}
+                </div>
+            `;
+
+            // Auto-scroll al final
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        function showError(message) {
+            const statusDiv = document.getElementById('workoutStatus');
+            statusDiv.className = 'alert alert-danger';
+            statusDiv.innerHTML = `<strong>Error:</strong> ${message}`;
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSignalR();
+
+            // Configurar control de volumen
+            document.getElementById('volumeControl').addEventListener('input', function() {
+                const audio = document.getElementById('workoutAudio');
+                audio.volume = this.value / 100;
+                logMessage(`🔊 Volumen ajustado a ${this.value}%`);
+            });
+        });
+
+        // Cleanup al salir de la página
+        window.addEventListener('beforeunload', async function() {
+            if (connection && isWorkoutActive) {
+                await connection.invoke("LeaveWorkoutGroup", currentRoutineId.toString());
+                await connection.stop();
+            }
+        });
+    </script>
+}
+
+<style>
+    .rutina-content pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    #logContent {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
+
+    .btn {
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    #currentExercise .card {
+        border: none;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%
+
+    {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+    }
+</style>

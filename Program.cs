@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PredatorsGym.Datos;
-using PredatorsGym.Servicios; 
+using PredatorsGym.Servicios;
+using PredatorsGym.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,8 +27,21 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-//  Azure OpenAI Service con HttpClient
+//  SignalR
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.MaximumReceiveMessageSize = 64 * 1024; // 64KB
+});
+
+// Azure OpenAI Service con HttpClient
 builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
+
+//  Azure Speech Service
+builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
+
+//  Workout Service
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 
 var app = builder.Build();
 
@@ -60,6 +74,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+//  SignalR Hub
+app.MapHub<WorkoutHub>("/workoutHub");
 
 // Rutas por defecto
 app.MapControllerRoute(

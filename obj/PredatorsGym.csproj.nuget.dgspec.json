@@ -56,7 +56,7 @@
             },
             "Azure.Core": {
               "target": "Package",
-              "version": "[1.43.0, )"
+              "version": "[1.44.1, )"
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
@@ -69,6 +69,10 @@
             "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
               "target": "Package",
               "version": "[8.0.17, )"
+            },
+            "Microsoft.CognitiveServices.Speech": {
+              "target": "Package",
+              "version": "[1.44.0, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
