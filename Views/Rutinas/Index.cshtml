@@ -1,25 +1,295 @@
-﻿@model Rutina
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
 @{
-    ViewData["Title"] = "Mi rutina";
-    Layout = "_Layout";
+    ViewData["Title"] = "Inicio";
 }
 
-<h2>Mi rutina de entrenamiento</h2>
-
-@if (Model == null)
-{
-    <div class="alert alert-info">
-        No tienes una rutina generada aún.
+<!-- 🚀 HERO SECTION MODERNA -->
+<section class="modern-hero">
+    <div class="hero-background">
+        <div class="hero-gradient"></div>
+        <div class="hero-pattern"></div>
     </div>
-    <a href="/Rutinas/Create" class="btn btn-primary">Generar rutina</a>
+
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="hero-content animate-on-scroll">
+                    <div class="hero-badge">
+                        <i class="bi bi-stars"></i>
+                        <span>Powered by AI</span>
+                    </div>
+
+                    <h1 class="hero-title">
+                        Entrena como un
+                        <span class="hero-highlight">Depredador</span>
+                    </h1>
+
+                    <p class="hero-subtitle">
+                        Rutinas personalizadas con inteligencia artificial,
+                        seguimiento en tiempo real y resultados garantizados.
+                        <strong>Tu transformación comienza aquí.</strong>
+                    </p>
+
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">10K+</span>
+                            <span class="stat-label">Usuarios Activos</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">95%</span>
+                            <span class="stat-label">Ven Resultados</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">4.9</span>
+                            <span class="stat-label">Rating</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-actions">
+                        @if (!SignInManager.IsSignedIn(User))
+                        {
+                            <a href="/Account/Register" class="btn btn-primary btn-lg hero-cta">
+                                <i class="bi bi-rocket-takeoff"></i>
+                                <span>Comenzar Gratis</span>
+                                <div class="btn-shine"></div>
+                            </a>
+                            <a href="#features" class="btn btn-outline-light btn-lg hero-secondary">
+                                <i class="bi bi-play-circle"></i>
+                                <span>Ver Demo</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/Rutinas" class="btn btn-primary btn-lg hero-cta">
+                                <i class="bi bi-lightning-charge"></i>
+                                <span>Mis Rutinas</span>
+                                <div class="btn-shine"></div>
+                            </a>
+                            <a href="/Perfil" class="btn btn-outline-light btn-lg hero-secondary">
+                                <i class="bi bi-person-circle"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="hero-visual animate-on-scroll">
+                    <div class="visual-container">
+                        <div class="floating-card card-1">
+                            <i class="bi bi-heart-pulse"></i>
+                            <span>Monitor Cardíaco</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <i class="bi bi-trophy"></i>
+                            <span>Objetivos Cumplidos</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <i class="bi bi-graph-up"></i>
+                            <span>Progreso Real</span>
+                        </div>
+                        <div class="hero-phone">
+                            <div class="phone-screen">
+                                <div class="app-interface">
+                                    <div class="interface-header">
+                                        <span>Rutina de Hoy</span>
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    </div>
+                                    <div class="interface-content">
+                                        <div class="progress-ring">
+                                            <span>75%</span>
+                                        </div>
+                                        <p>¡Excelente progreso!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ✨ FEATURES SECTION -->
+<section id="features" class="modern-features section-padding">
+    <div class="container">
+        <!-- 📋 SECTION HEADER -->
+        <div class="section-header text-center animate-on-scroll">
+            <div class="section-badge">
+                <i class="bi bi-magic"></i>
+                <span>Características</span>
+            </div>
+            <h2 class="section-title">¿Por qué elegir Predator's?</h2>
+            <p class="section-subtitle">
+                La tecnología más avanzada al servicio de tu transformación física
+            </p>
+        </div>
+
+        <!-- 🎯 FEATURES GRID -->
+        <div class="features-grid">
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.1s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <h3 class="feature-title-modern">IA Personalizada</h3>
+                <p class="feature-description-modern">
+                    Rutinas creadas específicamente para ti usando inteligencia artificial avanzada
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.2s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-phone"></i>
+                </div>
+                <h3 class="feature-title-modern">Mobile First</h3>
+                <p class="feature-description-modern">
+                    Diseñado para móviles, entrena donde quieras sin necesidad de apps adicionales
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.3s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3 class="feature-title-modern">Seguimiento Completo</h3>
+                <p class="feature-description-modern">
+                    Monitorea tu progreso, peso, medidas y evolución física en tiempo real
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.4s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <h3 class="feature-title-modern">Nutrición Integrada</h3>
+                <p class="feature-description-modern">
+                    Planes alimenticios personalizados que complementan tu entrenamiento
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.5s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h3 class="feature-title-modern">Resultados Rápidos</h3>
+                <p class="feature-description-modern">
+                    Metodología comprobada para ver cambios reales en menos tiempo
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+
+            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.6s">
+                <div class="feature-icon-modern">
+                    <i class="bi bi-people"></i>
+                </div>
+                <h3 class="feature-title-modern">Comunidad Elite</h3>
+                <p class="feature-description-modern">
+                    Únete a una comunidad de atletas comprometidos con la excelencia
+                </p>
+                <div class="feature-link">
+                    <span>Conocer más</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 🎯 CTA SECTION -->
+@if (!SignInManager.IsSignedIn(User))
+{
+    <section class="modern-cta section-padding">
+        <div class="container">
+            <div class="cta-content animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h2 class="cta-title">¿Listo para tu transformación?</h2>
+                        <p class="cta-subtitle">
+                            Únete a miles de usuarios que ya están viendo resultados increíbles.
+                            Comienza gratis hoy mismo.
+                        </p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="/Account/Register" class="btn btn-primary btn-lg cta-button">
+                            <i class="bi bi-rocket-takeoff"></i>
+                            <span>Comenzar Ahora</span>
+                            <div class="btn-shine"></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 }
-else
-{
-    <div class="alert alert-success">
-        Rutina generada el: @Model.FechaCreacion.ToString("dd/MM/yyyy")
-    </div>
 
-    <pre>@Model.RutinaGenerada</pre>
+@section Scripts {
+    <script>
+        // Parallax effect for hero
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-pattern');
+            if (parallax) {
+                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
 
-    <a href="/Rutinas/Create" class="btn btn-warning mt-2">Reiniciar rutina</a>
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target') || counter.textContent);
+                const increment = target / 200;
+                let current = 0;
+
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.textContent = Math.ceil(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+
+                updateCounter();
+            });
+        }
+
+        // Trigger animations when hero is visible
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    heroObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const hero = document.querySelector('.modern-hero');
+        if (hero) heroObserver.observe(hero);
+    </script>
 }

@@ -1,5 +1,4 @@
 wwwroot\css\rutina.css
-wwwroot\css\site.css
 wwwroot\favicon.ico
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -62,3 +61,4 @@ wwwroot\lib\jquery\LICENSE.txt
 wwwroot\lib\microsoft-signalr\libman.json
 wwwroot\lib\microsoft-signalr\wwwroot\lib\microsoft-signalr\dist\browser\signalr.js
 wwwroot\lib\microsoft-signalr\wwwroot\lib\microsoft-signalr\dist\browser\signalr.min.js
+wwwroot\css\site.css
