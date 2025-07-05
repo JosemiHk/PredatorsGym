@@ -1,56 +1,81 @@
 ﻿@model RegistroViewModel
 @{
-    ViewData["Title"] = "Registro";
+    ViewData["Title"] = "Crear Cuenta";
     Layout = "_Layout";
 }
 
-<h2 class="mb-4">Registro de Usuario</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+}
 
-<form asp-action="Register" method="post">
-    <div class="mb-3">
-        <label asp-for="Nombres" class="form-label"></label>
-        <input asp-for="Nombres" class="form-control" />
-        <span asp-validation-for="Nombres" class="text-danger"></span>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>🚀 Únete a Predator's</h2>
+            <p>Crea tu cuenta y comienza tu transformación</p>
+        </div>
+
+        <div class="login-body">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-custom">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Error:</strong>
+                    <div asp-validation-summary="All"></div>
+                </div>
+            }
+
+            <form asp-action="Register" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-floating">
+                    <input asp-for="Email" class="form-control" id="emailInput" placeholder="tu@email.com" required>
+                    <label for="emailInput">
+                        <i class="bi bi-envelope"></i> Correo Electrónico
+                    </label>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Password" class="form-control" id="passwordInput" placeholder="Contraseña" required>
+                    <label for="passwordInput">
+                        <i class="bi bi-lock"></i> Contraseña
+                    </label>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="ConfirmPassword" class="form-control" id="confirmPasswordInput" placeholder="Confirmar Contraseña" required>
+                    <label for="confirmPasswordInput">
+                        <i class="bi bi-lock-fill"></i> Confirmar Contraseña
+                    </label>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <div class="form-floating">
+                    <input asp-for="Telefono" class="form-control" id="telefonoInput" placeholder="Teléfono (opcional)">
+                    <label for="telefonoInput">
+                        <i class="bi bi-phone"></i> Teléfono (opcional)
+                    </label>
+                    <span asp-validation-for="Telefono" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Crear Mi Cuenta
+                </button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            <p class="mb-2">¿Ya tienes una cuenta?</p>
+            <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Iniciar Sesión
+            </a>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="Apellidos" class="form-label"></label>
-        <input asp-for="Apellidos" class="form-control" />
-        <span asp-validation-for="Apellidos" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Email" class="form-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="FechaNacimiento" class="form-label"></label>
-        <input asp-for="FechaNacimiento" type="date" class="form-control" />
-        <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Telefono" class="form-label"></label>
-        <input asp-for="Telefono" class="form-control" />
-        <span asp-validation-for="Telefono" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ConfirmPassword" class="form-label"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Registrarse</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

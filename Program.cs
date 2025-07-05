@@ -6,43 +6,72 @@ using PredatorsGym.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Servicios
+// Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//  IDENTITY CONFIGURATION MEJORADA
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;
+    //  PASSWORD REQUIREMENTS
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
+
+    //  USER REQUIREMENTS
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+
+    //  SIGN IN REQUIREMENTS
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+
+    //  LOCKOUT SETTINGS
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+//  COOKIE CONFIGURATION
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
+    options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
+// MVC
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-//  SignalR configuración mejorada
+// SignalR
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
-    options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB para audio
+    options.MaximumReceiveMessageSize = 1024 * 1024;
     options.StreamBufferCapacity = 10;
     options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
 });
 
-// Servicios personalizados
+// Services
 builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
 builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 
 var app = builder.Build();
 
-// Inicializar roles
+// Initialize roles
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -53,11 +82,11 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Un error ocurrió al inicializar los roles.");
+        logger.LogError(ex, "Error al inicializar roles.");
     }
 }
 
-//  MIDDLEWARE EN ORDEN CORRECTO (.NET 8 syntax)
+// Middleware pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -65,25 +94,17 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-//  Static Files PRIMERO
 app.UseStaticFiles();
-
 app.UseRouting();
 
+//  AUTHENTICATION & AUTHORIZATION ORDER
 app.UseAuthentication();
 app.UseAuthorization();
 
-//  MAPEO MODERNO (.NET 8) - NO usar UseEndpoints
-// SignalR Hub
-app.MapHub<WorkoutHub>("/workoutHub", options =>
-{
-    options.Transports =
-        Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets |
-        Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;
-});
+// SignalR
+app.MapHub<WorkoutHub>("/workoutHub");
 
-// API Controllers
+// Controllers
 app.MapControllers();
 
 // MVC Routes
@@ -91,7 +112,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Razor Pages
+// Razor Pages (for Identity if needed)
 app.MapRazorPages();
 
 app.Run();

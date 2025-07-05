@@ -103,10 +103,11 @@
                         </li>
                     </ul>
 
-                    <!-- 👤 USER ACTIONS -->
+                    <!-- En la sección de USER ACTIONS -->
                     <div class="navbar-nav modern-actions">
                         @if (SignInManager.IsSignedIn(User))
                         {
+                            <!-- Usuario logueado -->
                             <div class="nav-item dropdown user-dropdown">
                                 <a class="nav-link dropdown-toggle user-menu" href="#" role="button" data-bs-toggle="dropdown">
                                     <div class="user-avatar">
@@ -120,6 +121,7 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                                            @Html.AntiForgeryToken()
                                             <button type="submit" class="dropdown-item text-danger">
                                                 <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
                                             </button>
@@ -130,11 +132,14 @@
                         }
                         else
                         {
-                            <a class="btn btn-outline-light btn-sm me-2 modern-btn-outline" href="/Account/Login">
+                            <!-- Usuario no logueado -->
+                            <a class="btn btn-outline-light btn-sm me-2 modern-btn-outline"
+                               asp-controller="Account" asp-action="Login">
                                 <i class="bi bi-box-arrow-in-right"></i>
                                 Entrar
                             </a>
-                            <a class="btn btn-primary btn-sm modern-btn-primary" href="/Account/Register">
+                            <a class="btn btn-primary btn-sm modern-btn-primary"
+                               asp-controller="Account" asp-action="Register">
                                 <i class="bi bi-rocket-takeoff"></i>
                                 Comenzar
                             </a>
@@ -145,12 +150,12 @@
         </nav>
     </header>
 
-    <!-- 📄 MAIN CONTENT -->
+    <!--  MAIN CONTENT -->
     <main class="main-content">
         @RenderBody()
     </main>
 
-    <!-- 🦶 MODERN FOOTER -->
+    <!--  MODERN FOOTER -->
     <footer class="modern-footer">
         <div class="container">
             <div class="footer-content">
@@ -182,11 +187,11 @@
         </div>
     </footer>
 
-    <!-- 🔧 SCRIPTS -->
+    <!--  SCRIPTS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- 🎯 GLOBAL SCRIPTS -->
+    <!--  GLOBAL SCRIPTS -->
     <script>
         // Loading spinner
         window.addEventListener('load', function() {

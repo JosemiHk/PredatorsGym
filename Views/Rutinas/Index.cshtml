@@ -1,295 +1,345 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-
+﻿@model PredatorsGym.Models.Rutina
 @{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Mis Rutinas";
+    Layout = "_Layout";
 }
 
-<!-- 🚀 HERO SECTION MODERNA -->
-<section class="modern-hero">
-    <div class="hero-background">
-        <div class="hero-gradient"></div>
-        <div class="hero-pattern"></div>
-    </div>
+@section Styles {
+    <style>
+        .rutinas-container {
+            padding: 2rem 0;
+        }
 
+        .routine-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+            .routine-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .routine-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+        }
+
+        .routine-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-600);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+}
+
+<div class="rutinas-container">
     <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
-                <div class="hero-content animate-on-scroll">
-                    <div class="hero-badge">
-                        <i class="bi bi-stars"></i>
-                        <span>Powered by AI</span>
-                    </div>
+        <!-- 🏠 BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")" class="text-decoration-none">
+                        <i class="bi bi-house"></i> Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <i class="bi bi-lightning-charge"></i> Mis Rutinas
+                </li>
+            </ol>
+        </nav>
 
-                    <h1 class="hero-title">
-                        Entrena como un
-                        <span class="hero-highlight">Depredador</span>
-                    </h1>
+        <!-- 📋 HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="bi bi-lightning-charge text-primary"></i>
+                    Mis Rutinas
+                </h1>
+                <p class="text-muted mb-0">Gestiona y ejecuta tus rutinas personalizadas</p>
+            </div>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Crear Nueva Rutina
+            </a>
+        </div>
 
-                    <p class="hero-subtitle">
-                        Rutinas personalizadas con inteligencia artificial,
-                        seguimiento en tiempo real y resultados garantizados.
-                        <strong>Tu transformación comienza aquí.</strong>
-                    </p>
+        @if (Model != null)
+        {
+            <!-- ✅ RUTINA ENCONTRADA -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="routine-card">
+                        <!-- 🎯 HEADER DE RUTINA -->
+                        <div class="routine-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h3 class="mb-2">
+                                        <i class="bi bi-star-fill"></i>
+                                        Tu Rutina Personalizada
+                                    </h3>
+                                    <p class="mb-0 opacity-90">
+                                        Creada el @Model.FechaCreacion.ToString("dd/MM/yyyy 'a las' HH:mm")
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    @{
+                                        var badgeClass = Model.Estado switch
+                                        {
+                                            EstadoRutina.Creada => "badge bg-light text-dark",
+                                            EstadoRutina.EnProgreso => "badge bg-warning text-dark",
+                                            EstadoRutina.Completada => "badge bg-success",
+                                            EstadoRutina.Pausada => "badge bg-secondary",
+                                            _ => "badge bg-light text-dark"
+                                        };
 
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">10K+</span>
-                            <span class="stat-label">Usuarios Activos</span>
+                                        var estadoIcon = Model.Estado switch
+                                        {
+                                            EstadoRutina.Creada => "bi-plus-circle",
+                                            EstadoRutina.EnProgreso => "bi-play-circle",
+                                            EstadoRutina.Completada => "bi-check-circle",
+                                            EstadoRutina.Pausada => "bi-pause-circle",
+                                            _ => "bi-circle"
+                                        };
+                                    }
+                                    <span class="@badgeClass">
+                                        <i class="bi @estadoIcon"></i>
+                                        @Model.Estado.ToString()
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-number">95%</span>
-                            <span class="stat-label">Ven Resultados</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">4.9</span>
-                            <span class="stat-label">Rating</span>
-                        </div>
-                    </div>
 
-                    <div class="hero-actions">
-                        @if (!SignInManager.IsSignedIn(User))
-                        {
-                            <a href="/Account/Register" class="btn btn-primary btn-lg hero-cta">
-                                <i class="bi bi-rocket-takeoff"></i>
-                                <span>Comenzar Gratis</span>
-                                <div class="btn-shine"></div>
-                            </a>
-                            <a href="#features" class="btn btn-outline-light btn-lg hero-secondary">
-                                <i class="bi bi-play-circle"></i>
-                                <span>Ver Demo</span>
-                            </a>
-                        }
-                        else
-                        {
-                            <a href="/Rutinas" class="btn btn-primary btn-lg hero-cta">
-                                <i class="bi bi-lightning-charge"></i>
-                                <span>Mis Rutinas</span>
-                                <div class="btn-shine"></div>
-                            </a>
-                            <a href="/Perfil" class="btn btn-outline-light btn-lg hero-secondary">
-                                <i class="bi bi-person-circle"></i>
-                                <span>Mi Perfil</span>
-                            </a>
-                        }
+                        <!-- 📊 ESTADÍSTICAS -->
+                        <div class="routine-stats">
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.IMC.ToString("F1")</div>
+                                <div class="stat-label">IMC</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.Objetivo</div>
+                                <div class="stat-label">Objetivo</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.Experiencia</div>
+                                <div class="stat-label">Nivel</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.DiasEntrenamiento</div>
+                                <div class="stat-label">Días/Semana</div>
+                            </div>
+                        </div>
+
+                        <!-- 🎮 ACCIONES PRINCIPALES -->
+                        <div class="p-3 border-top">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })"
+                                   class="btn btn-primary flex-fill">
+                                    <i class="bi bi-play-circle"></i>
+                                    Ver y Entrenar
+                                </a>
+
+                                @if (Model.Estado == EstadoRutina.EnProgreso)
+                                {
+                                    <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })"
+                                       class="btn btn-warning flex-fill">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Continuar Entrenamiento
+                                    </a>
+                                }
+
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                                    <i class="bi bi-eye"></i>
+                                    Detalles
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-lg-6">
-                <div class="hero-visual animate-on-scroll">
-                    <div class="visual-container">
-                        <div class="floating-card card-1">
-                            <i class="bi bi-heart-pulse"></i>
-                            <span>Monitor Cardíaco</span>
+                <!-- 📈 SIDEBAR CON INFORMACIÓN -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-graph-up"></i>
+                                Progreso
+                            </h5>
                         </div>
-                        <div class="floating-card card-2">
-                            <i class="bi bi-trophy"></i>
-                            <span>Objetivos Cumplidos</span>
-                        </div>
-                        <div class="floating-card card-3">
-                            <i class="bi bi-graph-up"></i>
-                            <span>Progreso Real</span>
-                        </div>
-                        <div class="hero-phone">
-                            <div class="phone-screen">
-                                <div class="app-interface">
-                                    <div class="interface-header">
-                                        <span>Rutina de Hoy</span>
-                                        <i class="bi bi-check-circle-fill text-success"></i>
-                                    </div>
-                                    <div class="interface-content">
-                                        <div class="progress-ring">
-                                            <span>75%</span>
-                                        </div>
-                                        <p>¡Excelente progreso!</p>
-                                    </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Peso Actual</span>
+                                    <strong>@Model.Peso kg</strong>
                                 </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Peso Objetivo</span>
+                                    <strong>@Model.PesoObjetivo kg</strong>
+                                </div>
+                                <div class="progress mt-2">
+                                    @{
+                                        var progreso = Math.Abs(Model.PesoObjetivo - Model.Peso) > 0
+                                        ? Math.Min(100, (Math.Abs(Model.Peso - Model.PesoObjetivo) / Math.Abs(Model.Peso - Model.PesoObjetivo) * 100))
+                                        : 100;
+                                    }
+                                    <div class="progress-bar" style="width: @progreso%"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Estado IMC</h6>
+                                <span class="badge bg-info">@Model.EstadoIMC</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Configuración</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li><i class="bi bi-geo-alt text-muted"></i> @Model.LugarEntrenamiento</li>
+                                    <li>
+                                        <i class="bi bi-tools text-muted"></i>
+                                        @(Model.TieneImplementosBasicos ? "Con implementos" : "Solo peso corporal")
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🎯 ACCIONES RÁPIDAS -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-lightning"></i>
+                                Acciones Rápidas
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Create")" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-plus"></i>
+                                    Nueva Rutina
+                                </a>
+                                <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-play"></i>
+                                    Entrenar Ahora
+                                </a>
+                                <button type="button" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-share"></i>
+                                    Compartir Rutina
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
 
-<!-- ✨ FEATURES SECTION -->
-<section id="features" class="modern-features section-padding">
-    <div class="container">
-        <!-- 📋 SECTION HEADER -->
-        <div class="section-header text-center animate-on-scroll">
-            <div class="section-badge">
-                <i class="bi bi-magic"></i>
-                <span>Características</span>
-            </div>
-            <h2 class="section-title">¿Por qué elegir Predator's?</h2>
-            <p class="section-subtitle">
-                La tecnología más avanzada al servicio de tu transformación física
-            </p>
-        </div>
-
-        <!-- 🎯 FEATURES GRID -->
-        <div class="features-grid">
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.1s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <h3 class="feature-title-modern">IA Personalizada</h3>
-                <p class="feature-description-modern">
-                    Rutinas creadas específicamente para ti usando inteligencia artificial avanzada
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.2s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-phone"></i>
-                </div>
-                <h3 class="feature-title-modern">Mobile First</h3>
-                <p class="feature-description-modern">
-                    Diseñado para móviles, entrena donde quieras sin necesidad de apps adicionales
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.3s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
-                <h3 class="feature-title-modern">Seguimiento Completo</h3>
-                <p class="feature-description-modern">
-                    Monitorea tu progreso, peso, medidas y evolución física en tiempo real
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.4s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-heart-pulse"></i>
-                </div>
-                <h3 class="feature-title-modern">Nutrición Integrada</h3>
-                <p class="feature-description-modern">
-                    Planes alimenticios personalizados que complementan tu entrenamiento
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.5s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-lightning-charge"></i>
-                </div>
-                <h3 class="feature-title-modern">Resultados Rápidos</h3>
-                <p class="feature-description-modern">
-                    Metodología comprobada para ver cambios reales en menos tiempo
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-
-            <div class="feature-card-modern animate-on-scroll" style="--delay: 0.6s">
-                <div class="feature-icon-modern">
-                    <i class="bi bi-people"></i>
-                </div>
-                <h3 class="feature-title-modern">Comunidad Elite</h3>
-                <p class="feature-description-modern">
-                    Únete a una comunidad de atletas comprometidos con la excelencia
-                </p>
-                <div class="feature-link">
-                    <span>Conocer más</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- 🎯 CTA SECTION -->
-@if (!SignInManager.IsSignedIn(User))
-{
-    <section class="modern-cta section-padding">
-        <div class="container">
-            <div class="cta-content animate-on-scroll">
-                <div class="row align-items-center">
-                    <div class="col-lg-8">
-                        <h2 class="cta-title">¿Listo para tu transformación?</h2>
-                        <p class="cta-subtitle">
-                            Únete a miles de usuarios que ya están viendo resultados increíbles.
-                            Comienza gratis hoy mismo.
-                        </p>
-                    </div>
-                    <div class="col-lg-4 text-lg-end">
-                        <a href="/Account/Register" class="btn btn-primary btn-lg cta-button">
-                            <i class="bi bi-rocket-takeoff"></i>
-                            <span>Comenzar Ahora</span>
-                            <div class="btn-shine"></div>
-                        </a>
+            <!-- 📋 MODAL DE DETALLES -->
+            <div class="modal fade" id="detailsModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="bi bi-file-text"></i>
+                                Detalles de la Rutina
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if (!string.IsNullOrEmpty(Model.RutinaGenerada))
+                            {
+                                <div class="bg-light p-3 rounded">
+                                    <pre class="mb-0">@Model.RutinaGenerada</pre>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    No hay contenido de rutina disponible.
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })" class="btn btn-primary">
+                                <i class="bi bi-play"></i>
+                                Entrenar
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-}
+        }
+        else
+        {
+            <!-- ❌ ESTADO VACÍO -->
+            <div class="empty-state">
+                <div class="empty-icon">🏋️</div>
+                <h3>¡Aún no tienes rutinas!</h3>
+                <p class="lead mb-4">
+                    Crea tu primera rutina personalizada con inteligencia artificial.<br>
+                    Te ayudaremos a diseñar el plan perfecto para tus objetivos.
+                </p>
+                <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Crear Mi Primera Rutina
+                </a>
+            </div>
+        }
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        // Parallax effect for hero
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const parallax = document.querySelector('.hero-pattern');
-            if (parallax) {
-                parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
-            }
-        });
-
-        // Counter animation
-        function animateCounters() {
-            const counters = document.querySelectorAll('.stat-number');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target') || counter.textContent);
-                const increment = target / 200;
-                let current = 0;
-
-                const updateCounter = () => {
-                    if (current < target) {
-                        current += increment;
-                        counter.textContent = Math.ceil(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = target;
-                    }
-                };
-
-                updateCounter();
-            });
-        }
-
-        // Trigger animations when hero is visible
-        const heroObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateCounters();
-                    heroObserver.unobserve(entry.target);
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar contador de progreso
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                    bar.style.transition = 'width 1s ease-in-out';
+                }, 100);
             });
         });
-
-        const hero = document.querySelector('.modern-hero');
-        if (hero) heroObserver.observe(hero);
     </script>
 }
