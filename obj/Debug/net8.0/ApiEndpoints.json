@@ -1,1 +1,82 @@
-[]
+[
+  {
+    "ContainingType": "PredatorsGym.Controllers.Api.WorkoutApiController",
+    "Method": "CompleteWorkout",
+    "RelativePath": "api/workout/complete/{routineId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "routineId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PredatorsGym.Controllers.Api.WorkoutApiController",
+    "Method": "PauseWorkout",
+    "RelativePath": "api/workout/pause/{routineId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "routineId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PredatorsGym.Controllers.Api.WorkoutApiController",
+    "Method": "ResumeWorkout",
+    "RelativePath": "api/workout/resume/{routineId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "routineId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PredatorsGym.Controllers.Api.WorkoutApiController",
+    "Method": "StartWorkout",
+    "RelativePath": "api/workout/start/{routineId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "routineId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PredatorsGym.Controllers.Api.WorkoutApiController",
+    "Method": "GetWorkoutStatus",
+    "RelativePath": "api/workout/status/{routineId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "routineId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

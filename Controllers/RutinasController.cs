@@ -52,14 +52,19 @@ namespace PredatorsGym.Controllers
             try
             {
                 var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogError("Usuario no encontrado en GenerarRutina");
+                    return RedirectToAction("Login", "Account");
+                }
+
                 model.UsuarioId = user.Id;
                 model.FechaCreacion = DateTime.Now;
 
-                // ✅ CÁLCULO CORREGIDO DEL IMC
+                // Cálculo del IMC
                 model.IMC = CalcularIMC(model.Peso, model.Altura);
                 model.EstadoIMC = CalcularEstadoIMC(model.IMC);
 
-                // 🔄 NUEVO PROMPT OPTIMIZADO PARA AZURE OPENAI
                 var prompt = $@"
 Necesito una rutina de entrenamiento personalizada para las siguientes características:
 
@@ -85,15 +90,24 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
 
                 _logger.LogInformation("Generando rutina para usuario {UserId} con Azure OpenAI", user.Id);
 
-                // 🚀 LLAMADA A AZURE OPENAI
+                // Llamada a Azure OpenAI
                 model.RutinaGenerada = await _azureOpenAIService.GenerarRutinaPersonalizadaAsync(prompt);
+
+                // Verificar que se generó contenido
+                if (string.IsNullOrEmpty(model.RutinaGenerada))
+                {
+                    _logger.LogError("RutinaGenerada está vacía después de llamada a Azure OpenAI");
+                    ModelState.AddModelError("", "No se pudo generar la rutina. Intenta nuevamente.");
+                    return View("Create", model);
+                }
 
                 _context.Rutinas.Add(model);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Rutina generada y guardada exitosamente para usuario {UserId}", user.Id);
+                _logger.LogInformation("Rutina generada y guardada exitosamente para usuario {UserId}. ID: {RutinaId}", user.Id, model.Id);
 
-                return View("RutinaGenerada", model);
+                // ✅ REDIRECCIONAR CORRECTAMENTE con ID
+                return RedirectToAction("RutinaGenerada", new { id = model.Id });
             }
             catch (Exception ex)
             {
@@ -106,53 +120,79 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
         [HttpGet]
         public async Task<IActionResult> RutinaGenerada(int id)
         {
-            var rutina = await _context.Rutinas.FindAsync(id);
-            if (rutina == null) return NotFound();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogError("Usuario no encontrado en RutinaGenerada");
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(rutina);
+                // ✅ BUSCAR RUTINA POR ID Y USUARIO
+                var rutina = await _context.Rutinas
+                    .Include(r => r.Ejercicios) // Incluir ejercicios si existen
+                    .FirstOrDefaultAsync(r => r.Id == id && r.UsuarioId == user.Id);
+
+                if (rutina == null)
+                {
+                    _logger.LogWarning("Rutina no encontrada. ID: {RutinaId}, Usuario: {UserId}", id, user.Id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("Mostrando rutina {RutinaId} para usuario {UserId}. Contenido: {Length} caracteres",
+                    rutina.Id, user.Id, rutina.RutinaGenerada?.Length ?? 0);
+
+                return View(rutina);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al mostrar rutina {RutinaId}", id);
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var rutina = await _context.Rutinas
-                .Where(r => r.UsuarioId == user.Id)
-                .OrderByDescending(r => r.FechaCreacion)
-                .FirstOrDefaultAsync();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(rutina);
+                var rutina = await _context.Rutinas
+                    .Where(r => r.UsuarioId == user.Id)
+                    .OrderByDescending(r => r.FechaCreacion)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("Index: Usuario {UserId}, Rutina encontrada: {HasRutina}",
+                    user.Id, rutina != null);
+
+                return View(rutina);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en Index de rutinas");
+                return View((Rutina?)null);
+            }
         }
 
-        /// <summary>
-        /// Calcula el Índice de Masa Corporal (IMC) según la fórmula estándar de la OMS
-        /// </summary>
-        /// <param name="pesoKg">Peso en kilogramos</param>
-        /// <param name="alturaCm">Altura en centímetros</param>
-        /// <returns>IMC calculado con precisión de 2 decimales</returns>
+        // Resto de métodos privados...
         private double CalcularIMC(double pesoKg, double alturaCm)
         {
-            // Validación de entrada
             if (pesoKg <= 0 || alturaCm <= 0)
             {
                 throw new ArgumentException("El peso y la altura deben ser valores positivos");
             }
 
-            // Convertir altura de centímetros a metros
             double alturaMetros = alturaCm / 100.0;
-
-            // Fórmula estándar del IMC: peso (kg) / altura² (m²)
             double imc = pesoKg / (alturaMetros * alturaMetros);
-
-            // Redondear a 2 decimales para precisión clínica
             return Math.Round(imc, 2);
         }
 
-        /// <summary>
-        /// Clasifica el IMC según los rangos establecidos por la Organización Mundial de la Salud (OMS)
-        /// </summary>
-        /// <param name="imc">Índice de Masa Corporal calculado</param>
-        /// <returns>Clasificación del estado nutricional</returns>
         private string CalcularEstadoIMC(double imc)
         {
             return imc switch

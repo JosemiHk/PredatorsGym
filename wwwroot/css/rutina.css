@@ -1,0 +1,42 @@
+﻿/* wwwroot/css/rutina.css */
+
+.rutina-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#logContent {
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+#currentExercise .card {
+    border: none;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}

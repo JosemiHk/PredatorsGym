@@ -27,20 +27,23 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-//  SignalR
+//  SignalR con configuración mejorada
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
-    options.MaximumReceiveMessageSize = 64 * 1024; // 64KB
+    options.MaximumReceiveMessageSize = 1024 * 1024; // 1MB para audio
+    options.StreamBufferCapacity = 10;
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
 });
 
 // Azure OpenAI Service con HttpClient
 builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
 
-//  Azure Speech Service
+// Azure Speech Service
 builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
 
-//  Workout Service
+// Workout Service
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 
 var app = builder.Build();
@@ -60,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Middleware y pipeline HTTP
+//  ORDEN CORRECTO DEL MIDDLEWARE
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -68,15 +71,26 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+//  Static Files ANTES de Routing
 app.UseStaticFiles();
 
 app.UseRouting();
 
+//  Authentication ANTES de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-//  SignalR Hub
-app.MapHub<WorkoutHub>("/workoutHub");
+//  SignalR Hub con logging
+app.MapHub<WorkoutHub>("/workoutHub", options =>
+{
+    options.Transports =
+        Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets |
+        Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;
+});
+
+// API Controllers ANTES de MVC routes
+app.MapControllers();
 
 // Rutas por defecto
 app.MapControllerRoute(
