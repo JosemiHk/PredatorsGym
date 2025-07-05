@@ -3,6 +3,7 @@
     ViewData["Title"] = "Rutina Generada";
     Layout = "_Layout";
 }
+
 @section Styles {
     <link rel="stylesheet" href="~/css/rutina.css" asp-append-version="true" />
 }
@@ -151,9 +152,8 @@
     </div>
 }
 
-
 @section Scripts {
-    <!--  CDN de SignalR -->
+    <!-- ✅ CDN de SignalR OBLIGATORIO -->
     <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
     <script>
         // Variables globales
@@ -164,223 +164,10 @@
         let workoutStartTime;
         let isWorkoutActive = false;
 
-        console.log('🔧 Debug Info:', {
-            modelId: currentRoutineId,
-            modelNull: @(Model == null ? "true" : "false"),
-            rutinaLength: @(Model?.RutinaGenerada?.Length ?? 0)
-        });
-
-        //  INICIALIZACIÓN CON VALIDACIÓN MEJORADA
-        document.addEventListener('DOMContentLoaded', function() {
-            logMessage("🔧 Página cargada. Inicializando...");
-
-            if (currentRoutineId > 0) {
-                initializeSignalR();
-            } else {
-                console.warn('⚠️ No se puede inicializar SignalR: ID de rutina inválido');
-                logMessage("❌ No se puede conectar: rutina no válida", 'error');
-            }
-
-            // Configurar controles
-            setupEventListeners();
-        });
-
-        //  INICIALIZACIÓN SIGNALR MEJORADA
-        async function initializeSignalR() {
-            try {
-                logMessage("🔗 Iniciando conexión SignalR...");
-
-                connection = new signalR.HubConnectionBuilder()
-                    .withUrl("/workoutHub", {
-                        transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
-                    })
-                    .withAutomaticReconnect([0, 2000, 10000, 30000])
-                    .configureLogging(signalR.LogLevel.Information)
-                    .build();
-
-                //  EVENTOS DEL HUB
-                connection.on("ReceiveAudio", function (audioData) {
-                    console.log("🎵 Audio recibido, tamaño:", audioData.length);
-                    playAudio(audioData);
-                    logMessage("🎵 Reproduciendo instrucciones de audio...");
-                });
-
-                connection.on("ReceiveExerciseStart", function (exercise) {
-                    console.log("🏁 Ejercicio iniciado:", exercise);
-                    showCurrentExercise(exercise);
-                    logMessage(`🏁 Iniciando: ${exercise.Name} (${exercise.Series}x${exercise.Repetitions})`);
-                });
-
-                connection.on("ReceiveExerciseEnd", function (exercise) {
-                    console.log("✅ Ejercicio completado:", exercise);
-                    logMessage(`✅ Completado: ${exercise.Name}`);
-                });
-
-                connection.on("ReceiveRestTime", function (rest) {
-                    console.log("😴 Tiempo de descanso:", rest);
-                    startRestTimer(rest.Duration);
-                    logMessage(`😴 Descanso: ${rest.Duration} segundos`);
-                });
-
-                connection.on("ReceiveWorkoutCompleted", function (data) {
-                    console.log("🎉 Entrenamiento completado:", data);
-                    completeWorkout(data);
-                    logMessage(`🎉 ¡Entrenamiento completado! Duración: ${data.Duration.toFixed(1)} minutos`);
-                });
-
-                connection.on("ReceiveWorkoutPaused", function () {
-                    console.log("⏸️ Entrenamiento pausado");
-                    pauseWorkout();
-                    logMessage("⏸️ Entrenamiento pausado");
-                });
-
-                connection.on("ReceiveWorkoutResumed", function () {
-                    console.log("▶️ Entrenamiento reanudado");
-                    resumeWorkout();
-                    logMessage("▶️ Entrenamiento reanudado");
-                });
-
-                connection.on("ReceiveError", function (message) {
-                    console.error("❌ Error desde hub:", message);
-                    logMessage(`❌ Error: ${message}`, 'error');
-                    showError(message);
-                });
-
-                connection.on("Connected", function (connectionId) {
-                    console.log("✅ Conectado con ID:", connectionId);
-                    logMessage(`✅ Conectado con ID: ${connectionId}`);
-                });
-
-                // ✅ EVENTOS DE RECONEXIÓN
-                connection.onreconnecting((error) => {
-                    console.warn("🔄 Reconectando...", error);
-                    logMessage("🔄 Reconectando...", 'warning');
-                });
-
-                connection.onreconnected((connectionId) => {
-                    console.log("✅ Reconectado con ID:", connectionId);
-                    logMessage("✅ Reconectado exitosamente");
-                });
-
-                connection.onclose((error) => {
-                    console.error("❌ Conexión cerrada:", error);
-                    logMessage("❌ Conexión perdida", 'error');
-                });
-
-                // ✅ INICIAR CONEXIÓN
-                await connection.start();
-                logMessage("🔗 Conectado al servidor de entrenamiento");
-
-                // Unirse al grupo de la rutina
-                await connection.invoke("JoinWorkoutGroup", currentRoutineId.toString());
-                logMessage(`👥 Unido al grupo de rutina ${currentRoutineId}`);
-
-            } catch (err) {
-                console.error("❌ Error al conectar SignalR:", err);
-                logMessage(`❌ Error de conexión: ${err}`, 'error');
-
-                // Retry después de 5 segundos
-                setTimeout(() => {
-                    logMessage("🔄 Reintentando conexión...");
-                    initializeSignalR();
-                }, 5000);
-            }
-        }
-
-        //  FUNCIÓN DE REPRODUCCIÓN DE AUDIO MEJORADA
-        function playAudio(base64Data) {
-            try {
-                console.log("🎵 Intentando reproducir audio, tamaño:", base64Data.length);
-
-                const audio = document.getElementById('workoutAudio');
-                const volume = document.getElementById('volumeControl').value / 100;
-
-                // Limpiar src anterior
-                if (audio.src) {
-                    URL.revokeObjectURL(audio.src);
-                }
-
-                // Crear blob de audio
-                const binaryString = atob(base64Data);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-
-                const blob = new Blob([bytes], { type: 'audio/mp3' });
-                const url = URL.createObjectURL(blob);
-
-                audio.src = url;
-                audio.volume = volume;
-
-                // Reproducir con promesa
-                const playPromise = audio.play();
-
-                if (playPromise !== undefined) {
-                    playPromise
-                        .then(() => {
-                            console.log("✅ Audio reproducido exitosamente");
-                            logMessage("✅ Audio reproducido");
-                        })
-                        .catch(error => {
-                            console.error("❌ Error al reproducir audio:", error);
-                            logMessage(`❌ Error de audio: ${error.message}`, 'error');
-                        });
-                }
-
-            } catch (error) {
-                console.error("❌ Error al procesar audio:", error);
-                logMessage(`❌ Error de audio: ${error}`, 'error');
-            }
-        }
-
-        //  CONFIGURAR EVENT LISTENERS
-        function setupEventListeners() {
-            // Botón de inicio
-            document.getElementById('startWorkoutBtn')?.addEventListener('click', async function() {
-                if (currentRoutineId <= 0) {
-                    logMessage("❌ No se puede iniciar: ID de rutina inválido", 'error');
-                    return;
-                }
-
-                logMessage(`🚀 Intentando iniciar entrenamiento con rutina ID: ${currentRoutineId}`);
-
-                try {
-                    const response = await fetch(`/api/workout/start/${currentRoutineId}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() || ''
-                        }
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        logMessage("✅ Entrenamiento iniciado exitosamente");
-                        console.log("✅ Respuesta del servidor:", result);
-                    } else {
-                        const errorText = await response.text();
-                        console.error("❌ Error del servidor:", response.status, errorText);
-                        logMessage(`❌ Error al iniciar (${response.status}): ${errorText}`, 'error');
-                    }
-                } catch (error) {
-                    console.error("❌ Error de red:", error);
-                    logMessage(`❌ Error de conexión: ${error}`, 'error');
-                }
-            });
-
-            // Control de volumen
-            document.getElementById('volumeControl')?.addEventListener('input', function() {
-                const audio = document.getElementById('workoutAudio');
-                if (audio) {
-                    audio.volume = this.value / 100;
-                    logMessage(`🔊 Volumen ajustado a ${this.value}%`);
-                }
-            });
-        }
-
-        //  FUNCIONES AUXILIARES MEJORADAS
+        // ✅ FUNCIÓN DE LOGGING MEJORADA
         function logMessage(message, type = 'info') {
+            console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+
             const logContent = document.getElementById('logContent');
             if (!logContent) return;
 
@@ -395,79 +182,242 @@
             `;
 
             logContent.scrollTop = logContent.scrollHeight;
+        }
 
-            // También log en consola
-            if (type === 'error') {
-                console.error(message);
-            } else if (type === 'warning') {
-                console.warn(message);
+        // ✅ INICIALIZACIÓN ROBUSTA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 DOM loaded');
+            logMessage("🔧 Página cargada. Inicializando...");
+
+            // ✅ VERIFICAR SIGNALR DISPONIBLE
+            if (typeof signalR === 'undefined') {
+                console.error('❌ SignalR not available!');
+                logMessage("❌ SignalR no disponible. Verifique la conexión a internet.", 'error');
+
+                const statusDiv = document.getElementById('workoutStatus');
+                if (statusDiv) {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.innerHTML = '<strong>Error:</strong> SignalR no disponible. Recargue la página.';
+                }
+                return;
+            }
+
+            console.log('✅ SignalR available');
+            logMessage("✅ SignalR disponible");
+
+            // Verificar ID de rutina
+            console.log('🔧 Routine ID:', currentRoutineId);
+            if (currentRoutineId > 0) {
+                initializeSignalR();
             } else {
-                console.log(message);
+                console.warn('⚠️ Invalid routine ID');
+                logMessage("❌ ID de rutina inválido", 'error');
+            }
+
+            // Configurar controles
+            setupEventListeners();
+        });
+
+        // ✅ INICIALIZACIÓN SIGNALR
+        async function initializeSignalR() {
+            try {
+                logMessage("🔗 Iniciando conexión SignalR...");
+
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/workoutHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                // Event handlers
+                connection.on("ReceiveAudio", function (audioData) {
+                    console.log("🎵 Audio received:", audioData.length);
+                    playAudio(audioData);
+                    logMessage("🎵 Reproduciendo audio...");
+                });
+
+                connection.on("ReceiveExerciseStart", function (exercise) {
+                    console.log("🏁 Exercise start:", exercise);
+                    showCurrentExercise(exercise);
+                    logMessage(`🏁 Iniciando: ${exercise.Name}`);
+                });
+
+                connection.on("ReceiveExerciseEnd", function (exercise) {
+                    logMessage(`✅ Completado: ${exercise.Name}`);
+                });
+
+                connection.on("ReceiveRestTime", function (rest) {
+                    startRestTimer(rest.Duration);
+                    logMessage(`😴 Descanso: ${rest.Duration}s`);
+                });
+
+                connection.on("ReceiveWorkoutCompleted", function (data) {
+                    logMessage("🎉 ¡Entrenamiento completado!");
+                });
+
+                connection.on("ReceiveError", function (message) {
+                    logMessage(`❌ Error: ${message}`, 'error');
+                });
+
+                // Connection events
+                connection.onreconnecting(() => {
+                    logMessage("🔄 Reconectando...", 'warning');
+                });
+
+                connection.onreconnected(() => {
+                    logMessage("✅ Reconectado");
+                });
+
+                connection.onclose(() => {
+                    logMessage("❌ Conexión cerrada", 'error');
+                });
+
+                // Start connection
+                await connection.start();
+                logMessage("🔗 Conectado al servidor");
+
+                // Join group
+                await connection.invoke("JoinWorkoutGroup", currentRoutineId.toString());
+                logMessage(`👥 Unido al grupo ${currentRoutineId}`);
+
+            } catch (err) {
+                console.error("❌ SignalR error:", err);
+                logMessage(`❌ Error de conexión: ${err.message}`, 'error');
+
+                // Retry
+                setTimeout(() => {
+                    logMessage("🔄 Reintentando...");
+                    initializeSignalR();
+                }, 5000);
             }
         }
 
-        function showError(message) {
-            const statusDiv = document.getElementById('workoutStatus');
-            if (statusDiv) {
-                statusDiv.className = 'alert alert-danger';
-                statusDiv.innerHTML = `<strong>Error:</strong> ${message}`;
+        // ✅ AUDIO PLAYER
+        function playAudio(base64Data) {
+            try {
+                const audio = document.getElementById('workoutAudio');
+                if (!audio) {
+                    logMessage("❌ Audio element not found", 'error');
+                    return;
+                }
+
+                const volume = (document.getElementById('volumeControl')?.value || 70) / 100;
+
+                // Create blob
+                const binaryString = atob(base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+
+                audio.src = url;
+                audio.volume = volume;
+
+                audio.play()
+                    .then(() => {
+                        logMessage("✅ Audio reproducido");
+                    })
+                    .catch(error => {
+                        logMessage(`❌ Error audio: ${error.message}`, 'error');
+                    });
+
+            } catch (error) {
+                logMessage(`❌ Error procesando audio: ${error.message}`, 'error');
             }
         }
 
+        // ✅ EVENT LISTENERS
+        function setupEventListeners() {
+            const startBtn = document.getElementById('startWorkoutBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', async function() {
+                    if (currentRoutineId <= 0) {
+                        logMessage("❌ ID de rutina inválido", 'error');
+                        return;
+                    }
+
+                    logMessage(`🚀 Iniciando entrenamiento ${currentRoutineId}`);
+
+                    try {
+                        const response = await fetch(`/api/workout/start/${currentRoutineId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            logMessage("✅ Entrenamiento iniciado");
+                            console.log("Server response:", result);
+                        } else {
+                            const error = await response.text();
+                            logMessage(`❌ Error servidor: ${error}`, 'error');
+                        }
+                    } catch (error) {
+                        logMessage(`❌ Error red: ${error.message}`, 'error');
+                    }
+                });
+            }
+
+            // Volume control
+            const volumeControl = document.getElementById('volumeControl');
+            if (volumeControl) {
+                volumeControl.addEventListener('input', function() {
+                    const audio = document.getElementById('workoutAudio');
+                    if (audio) {
+                        audio.volume = this.value / 100;
+                        logMessage(`🔊 Volumen: ${this.value}%`);
+                    }
+                });
+            }
+        }
+
+        // ✅ HELPER FUNCTIONS
         function showCurrentExercise(exercise) {
-            const currentExerciseDiv = document.getElementById('currentExercise');
-            if (currentExerciseDiv) {
-                currentExerciseDiv.style.display = 'block';
-                document.getElementById('exerciseName').textContent = exercise.Name;
-                document.getElementById('exerciseDetails').textContent =
-                    `${exercise.Series} series × ${exercise.Repetitions} repeticiones`;
+            const div = document.getElementById('currentExercise');
+            if (div) {
+                div.style.display = 'block';
+                const name = document.getElementById('exerciseName');
+                const details = document.getElementById('exerciseDetails');
+
+                if (name) name.textContent = exercise.Name;
+                if (details) details.textContent = `${exercise.Series} × ${exercise.Repetitions}`;
             }
         }
 
         function startRestTimer(duration) {
-            const restTimerDiv = document.getElementById('restTimer');
-            if (restTimerDiv) {
-                restTimerDiv.style.display = 'block';
+            const div = document.getElementById('restTimer');
+            if (div) {
+                div.style.display = 'block';
                 let remaining = duration;
 
-                restTimer = setInterval(function() {
+                restTimer = setInterval(() => {
                     const minutes = Math.floor(remaining / 60);
                     const seconds = remaining % 60;
-                    document.getElementById('restDisplay').textContent =
-                        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    const display = document.getElementById('restDisplay');
+
+                    if (display) {
+                        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    }
 
                     remaining--;
                     if (remaining < 0) {
                         clearInterval(restTimer);
-                        restTimerDiv.style.display = 'none';
+                        div.style.display = 'none';
                     }
                 }, 1000);
             }
         }
 
-        function completeWorkout(data) {
-            // Implementar lógica de finalización
-            logMessage("🏆 Entrenamiento finalizado");
-        }
-
-        function pauseWorkout() {
-            // Implementar lógica de pausa
-            logMessage("⏸️ Entrenamiento pausado");
-        }
-
-        function resumeWorkout() {
-            // Implementar lógica de reanudación
-            logMessage("▶️ Entrenamiento reanudado");
-        }
-
-        //  CLEANUP AL SALIR
+        //  CLEANUP
         window.addEventListener('beforeunload', async function() {
             if (connection && connection.state === signalR.HubConnectionState.Connected) {
                 try {
                     await connection.invoke("LeaveWorkoutGroup", currentRoutineId.toString());
                     await connection.stop();
                 } catch (err) {
-                    console.error("Error al limpiar conexión:", err);
+                    console.error("Cleanup error:", err);
                 }
             }
         });

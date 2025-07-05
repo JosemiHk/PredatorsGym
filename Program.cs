@@ -6,11 +6,10 @@ using PredatorsGym.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Conexión a la base de datos
+// Servicios
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Identity con roles
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
@@ -23,11 +22,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// MVC + Razor Runtime Compilation
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
-//  SignalR con configuración mejorada
+//  SignalR configuración mejorada
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
@@ -37,18 +35,14 @@ builder.Services.AddSignalR(options =>
     options.KeepAliveInterval = TimeSpan.FromSeconds(15);
 });
 
-// Azure OpenAI Service con HttpClient
+// Servicios personalizados
 builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
-
-// Azure Speech Service
 builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
-
-// Workout Service
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 
 var app = builder.Build();
 
-// Inicializar roles automáticamente
+// Inicializar roles
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -63,7 +57,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-//  ORDEN CORRECTO DEL MIDDLEWARE
+//  MIDDLEWARE EN ORDEN CORRECTO (.NET 8 syntax)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -72,16 +66,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//  Static Files ANTES de Routing
+//  Static Files PRIMERO
 app.UseStaticFiles();
 
 app.UseRouting();
 
-//  Authentication ANTES de Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-//  SignalR Hub con logging
+//  MAPEO MODERNO (.NET 8) - NO usar UseEndpoints
+// SignalR Hub
 app.MapHub<WorkoutHub>("/workoutHub", options =>
 {
     options.Transports =
@@ -89,15 +83,15 @@ app.MapHub<WorkoutHub>("/workoutHub", options =>
         Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;
 });
 
-// API Controllers ANTES de MVC routes
+// API Controllers
 app.MapControllers();
 
-// Rutas por defecto
+// MVC Routes
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Identity
+// Razor Pages
 app.MapRazorPages();
 
 app.Run();
