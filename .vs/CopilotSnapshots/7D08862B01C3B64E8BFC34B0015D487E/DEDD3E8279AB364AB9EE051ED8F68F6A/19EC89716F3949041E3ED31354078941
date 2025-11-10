@@ -1,0 +1,23 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.;Database=PredatorsGymDB4;Trusted_Connection=True;MultipleActiveResultSets=True;TrustServerCertificate=true;"
+  },
+  "AzureOpenAI": {
+    "Endpoint": "https://n0034-mh3ip27b-eastus2.cognitiveservices.azure.com/",
+    "ApiKey": "B1TEBsqbK0hrJKa6plvMaxgIFVfwXkhvLrPXezhbT0R8tqSX5fcRJQQJ99BJACHYHv6XJ3w3AAAAACOGfYvZ",
+    "DeploymentName": "gpt-4o",
+    "ApiVersion": "2025-01-01-preview"
+  },
+  "AzureSpeech": {
+    "SubscriptionKey": "Aq0d55h4pVsGTpCH0WtcVJW1ClVcMdRBJYSy9nGF6zOEkh0HLToiJQQJ99BGACHYHv6XJ3w3AAAAACOGASn9",
+    "Region": "eastus2",
+    "VoiceName": "es-ES-AlvaroNeural"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

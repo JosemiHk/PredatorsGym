@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {}
+    "F:\\BACKUP CALIDAD DE SOFTWARE\\SEMANA 11\\PAYMENT\\PredatorsGym\\PredatorsGym.csproj": {}
   },
   "projects": {
-    "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj": {
+    "F:\\BACKUP CALIDAD DE SOFTWARE\\SEMANA 11\\PAYMENT\\PredatorsGym\\PredatorsGym.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
+        "projectUniqueName": "F:\\BACKUP CALIDAD DE SOFTWARE\\SEMANA 11\\PAYMENT\\PredatorsGym\\PredatorsGym.csproj",
         "projectName": "PredatorsGym",
-        "projectPath": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\PredatorsGym.csproj",
+        "projectPath": "F:\\BACKUP CALIDAD DE SOFTWARE\\SEMANA 11\\PAYMENT\\PredatorsGym\\PredatorsGym.csproj",
         "packagesPath": "C:\\Users\\josem\\.nuget\\packages\\",
-        "outputPath": "E:\\00_PROYECTOS JM\\PROYECTOS 2025-2\\DAS-Gym\\PredatorsGym\\PredatorsGym\\obj\\",
+        "outputPath": "F:\\BACKUP CALIDAD DE SOFTWARE\\SEMANA 11\\PAYMENT\\PredatorsGym\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

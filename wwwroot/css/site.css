@@ -820,3 +820,37 @@ body {
 .main-content {
     margin-top: 80px;
 }
+/* Agregar al final del archivo site.css */
+
+/* Estilos para la imagen de perfil en el navbar */
+.user-profile-image {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+    .user-profile-image:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: scale(1.05);
+    }
+
+.user-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EF233C, #ff4757);
+    color: white;
+    font-size: 1.2rem;
+    margin-right: 8px;
+    overflow: hidden;
+}
+
+    .user-avatar i {
+        font-size: 1.1rem;
+    }

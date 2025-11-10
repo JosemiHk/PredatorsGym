@@ -1,6 +1,14 @@
+wwwroot\css\accesibility.css
+wwwroot\css\faq.css
+wwwroot\css\membresia.css
+wwwroot\css\perfil.css
 wwwroot\css\rutina.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\images\profiles\84222659-0ee4-40df-8bc7-8e40ccf4eb71_06e0041f-76f3-4354-b005-40d253467810.jpg
+wwwroot\js\accessibility.js
+wwwroot\js\faq.js
+wwwroot\js\membresia.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map

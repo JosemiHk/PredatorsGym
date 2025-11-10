@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using PredatorsGym.Datos;
 using PredatorsGym.Servicios;
 using PredatorsGym.Hubs;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -68,6 +69,19 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
 builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
+builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
+
+// Configure FormOptions and IISServerOptions
+builder.Services.Configure<FormOptions>(options =>
+{
+    // Límite de 10MB para archivos
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+});
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 10 * 1024 * 1024;
+});
 
 var app = builder.Build();
 

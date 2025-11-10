@@ -12,8 +12,8 @@ using PredatorsGym.Datos;
 namespace PredatorsGym.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250704202100_PruebaVoz")]
-    partial class PruebaVoz
+    [Migration("20250709124041_Membresiasprueba")]
+    partial class Membresiasprueba
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -277,6 +277,151 @@ namespace PredatorsGym.Migrations
                     b.HasIndex("RutinaId");
 
                     b.ToTable("Ejercicios");
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Membresia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("EsActiva")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("FechaCancelacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MetodoPago")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NotasCancelacion")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Precio")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("TipoMembresia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TransaccionId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EsActiva");
+
+                    b.HasIndex("FechaFin");
+
+                    b.HasIndex("FechaInicio");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Membresias");
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.PerfilUsuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("Altura")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Apellidos")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("DiasEntrenamientoSemana")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DuracionPreferida")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaNacimiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Genero")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<byte[]>("ImagenPerfil")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("LesionesLimitaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NivelExperiencia")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Nombre")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ObjetivoPrincipal")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("PesoActual")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal?>("PesoObjetivo")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TipoImagen")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UltimaActividad")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechaActualizacion");
+
+                    b.HasIndex("UltimaActividad");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique();
+
+                    b.ToTable("PerfilesUsuarios");
                 });
 
             modelBuilder.Entity("PredatorsGym.Models.Rutina", b =>

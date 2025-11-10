@@ -1,0 +1,247 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Predator's</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Predator's - Tu gimnasio digital personalizado con IA" />
+    <meta name="theme-color" content="#EF233C" />
+
+    <!-- ✨ STYLES SECTION -->
+    @await RenderSectionAsync("Styles", required: false)
+
+    <!-- 🎯 META & FAVICONS -->
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" href="~/favicon.ico" />
+
+    <!-- 🎨 CSS FRAMEWORKS & FONTS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- 🔤 GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body class="theme-light">
+    <!-- 🚀 LOADING SPINNER -->
+    <div id="loading-spinner" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-icon">🏋️</div>
+            <div class="loading-text">Cargando Predator's...</div>
+        </div>
+    </div>
+
+    <!-- 🧭 MODERN NAVIGATION -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top modern-navbar">
+            <div class="container">
+                <!-- 🏷️ BRAND LOGO -->
+                <a class="navbar-brand modern-brand" href="/">
+                    <div class="brand-container">
+                        <span class="brand-icon">🏋️</span>
+                        <span class="brand-text">Predator's</span>
+                        <span class="brand-badge">AI</span>
+                    </div>
+                </a>
+
+                <!-- 📱 MOBILE TOGGLE -->
+                <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
+                </button>
+
+                <!-- 🔗 NAVIGATION MENU -->
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto modern-nav-links">
+                        <li class="nav-item">
+                            <a class="nav-link modern-nav-link" href="/">
+                                <i class="bi bi-house-door"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Perfil">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>Perfil</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Rutinas">
+                                    <i class="bi bi-lightning-charge"></i>
+                                    <span>Rutinas</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Dietas">
+                                    <i class="bi bi-heart-pulse"></i>
+                                    <span>Nutrición</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Membresia">
+                                    <i class="bi bi-gem"></i>
+                                    <span>Premium</span>
+                                </a>
+                            </li>
+                        }
+
+                        <li class="nav-item">
+                            <a class="nav-link modern-nav-link" href="/Home/PreguntasFrecuentes">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Ayuda</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- En la sección de USER ACTIONS -->
+                    <div class="navbar-nav modern-actions">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <!-- Usuario logueado -->
+                            <div class="nav-item dropdown user-dropdown">
+                                <a class="nav-link dropdown-toggle user-menu" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="user-avatar">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <span class="user-name">Mi Cuenta</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
+                                    <li><a class="dropdown-item" href="/Perfil"><i class="bi bi-person"></i> Perfil</a></li>
+                                    <li><a class="dropdown-item" href="/Configuracion"><i class="bi bi-gear"></i> Configuración</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Usuario no logueado -->
+                            <a class="btn btn-outline-light btn-sm me-2 modern-btn-outline"
+                               asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Entrar
+                            </a>
+                            <a class="btn btn-primary btn-sm modern-btn-primary"
+                               asp-controller="Account" asp-action="Register">
+                                <i class="bi bi-rocket-takeoff"></i>
+                                Comenzar
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!--  MAIN CONTENT -->
+    <main class="main-content">
+        @RenderBody()
+    </main>
+
+    <!--  MODERN FOOTER -->
+    <footer class="modern-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="footer-brand">
+                            <span class="footer-logo">🏋️ Predator's</span>
+                            <p class="footer-tagline">Entrena como un depredador</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-links">
+                            <a href="/Privacy" class="footer-link">Privacidad</a>
+                            <a href="/Terms" class="footer-link">Términos</a>
+                            <a href="/Contact" class="footer-link">Contacto</a>
+                        </div>
+                        <div class="footer-social">
+                            <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-youtube"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider" />
+                <div class="footer-bottom">
+                    <p class="footer-copyright">© 2025 Predator's. Powered by AI & Passion 🔥</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!--  SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!--  GLOBAL SCRIPTS -->
+    <script>
+        // Loading spinner
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loading-spinner');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.modern-navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

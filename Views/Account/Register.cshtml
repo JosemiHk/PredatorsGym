@@ -5,16 +5,136 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+    <style>
+        .login-container {
+            min-height: calc(100vh - 160px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+        }
+
+        .login-card {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+        }
+
+            .login-header h2 {
+                margin: 0;
+                font-size: 1.8rem;
+                font-weight: 700;
+            }
+
+            .login-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+            }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-floating {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+            .form-floating .form-control {
+                border: 2px solid var(--gray-200);
+                border-radius: var(--border-radius);
+                transition: var(--transition);
+            }
+
+                .form-floating .form-control:focus {
+                    border-color: var(--primary);
+                    box-shadow: 0 0 0 0.2rem rgba(239, 35, 60, 0.15);
+                }
+
+        .toggle-password {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--gray-600);
+            padding: 0.25rem 0.4rem;
+            cursor: pointer;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: none;
+            color: var(--white);
+            transition: var(--transition);
+        }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+                color: var(--white);
+            }
+
+        .login-footer {
+            text-align: center;
+            padding: 1rem 2rem 2rem;
+            border-top: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+
+        .alert-custom {
+            border-radius: var(--border-radius);
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .password-meter {
+            margin: 0.25rem 0 0.5rem;
+        }
+
+            .password-meter .progress {
+                height: 6px;
+                border-radius: 999px;
+                background-color: var(--gray-200);
+            }
+
+            .password-meter .progress-bar {
+                transition: width .25s ease;
+            }
+
+        .hint {
+            font-size: .85rem;
+            color: var(--gray-600);
+        }
+    </style>
 }
 
 <div class="login-container">
     <div class="login-card">
+        <!-- Header -->
         <div class="login-header">
             <h2>🚀 Únete a Predator's</h2>
             <p>Crea tu cuenta y comienza tu transformación</p>
         </div>
 
+        <!-- Body -->
         <div class="login-body">
             @if (!ViewData.ModelState.IsValid)
             {
@@ -25,48 +145,60 @@
                 </div>
             }
 
-            <form asp-action="Register" method="post">
+            <form asp-action="Register" method="post" novalidate>
                 @Html.AntiForgeryToken()
 
+                <!-- Email -->
                 <div class="form-floating">
                     <input asp-for="Email" class="form-control" id="emailInput" placeholder="tu@email.com" required>
-                    <label for="emailInput">
-                        <i class="bi bi-envelope"></i> Correo Electrónico
-                    </label>
+                    <label for="emailInput"><i class="bi bi-envelope"></i> Correo Electrónico</label>
                     <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
 
+                <!-- Password -->
                 <div class="form-floating">
                     <input asp-for="Password" class="form-control" id="passwordInput" placeholder="Contraseña" required>
-                    <label for="passwordInput">
-                        <i class="bi bi-lock"></i> Contraseña
-                    </label>
+                    <label for="passwordInput"><i class="bi bi-lock"></i> Contraseña</label>
+                    <button type="button" class="toggle-password" data-target="#passwordInput" aria-label="Mostrar/Ocultar contraseña">
+                        <i class="bi bi-eye"></i>
+                    </button>
                     <span asp-validation-for="Password" class="text-danger small"></span>
                 </div>
 
+                <!-- Password strength -->
+                <div class="password-meter" aria-live="polite">
+                    <div class="progress">
+                        <div id="pwdStrengthBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small id="pwdStrengthText" class="hint">Seguridad: Muy débil</small>
+                </div>
+
+                <!-- Confirm Password -->
                 <div class="form-floating">
                     <input asp-for="ConfirmPassword" class="form-control" id="confirmPasswordInput" placeholder="Confirmar Contraseña" required>
-                    <label for="confirmPasswordInput">
-                        <i class="bi bi-lock-fill"></i> Confirmar Contraseña
-                    </label>
+                    <label for="confirmPasswordInput"><i class="bi bi-lock-fill"></i> Confirmar Contraseña</label>
+                    <button type="button" class="toggle-password" data-target="#confirmPasswordInput" aria-label="Mostrar/Ocultar confirmación">
+                        <i class="bi bi-eye"></i>
+                    </button>
                     <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
                 </div>
 
+                <!-- Teléfono -->
                 <div class="form-floating">
                     <input asp-for="Telefono" class="form-control" id="telefonoInput" placeholder="Teléfono (opcional)">
-                    <label for="telefonoInput">
-                        <i class="bi bi-phone"></i> Teléfono (opcional)
-                    </label>
+                    <label for="telefonoInput"><i class="bi bi-phone"></i> Teléfono (opcional)</label>
                     <span asp-validation-for="Telefono" class="text-danger small"></span>
                 </div>
 
-                <button type="submit" class="btn btn-login">
+                <!-- Submit -->
+                <button type="submit" class="btn btn-login" id="submitBtn">
                     <i class="bi bi-rocket-takeoff"></i>
                     Crear Mi Cuenta
                 </button>
             </form>
         </div>
 
+        <!-- Footer -->
         <div class="login-footer">
             <p class="mb-2">¿Ya tienes una cuenta?</p>
             <a href="@Url.Action("Login", "Account")" class="btn btn-outline-primary">
@@ -79,4 +211,82 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Autofocus email si está vacío
+        document.addEventListener('DOMContentLoaded', function () {
+            const emailInput = document.getElementById('emailInput');
+            if (emailInput && !emailInput.value) emailInput.focus();
+        });
+
+        // Toggle mostrar/ocultar contraseña
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetSel = btn.getAttribute('data-target');
+                const input = document.querySelector(targetSel);
+                if (!input) return;
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+
+        // Medidor de fortaleza de contraseña
+        const pwd = document.getElementById('passwordInput');
+        const bar = document.getElementById('pwdStrengthBar');
+        const text = document.getElementById('pwdStrengthText');
+
+        function calcStrength(value) {
+            let score = 0;
+            if (!value) return 0;
+            if (value.length >= 8) score += 1;
+            if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score += 1;
+            if (/\d/.test(value)) score += 1;
+            if (/[^A-Za-z0-9]/.test(value)) score += 1;
+            return score; // 0..4
+        }
+
+        function updateMeter() {
+            const val = pwd.value || '';
+            const score = calcStrength(val);
+            const percent = (score / 4) * 100;
+
+            bar.style.width = percent + '%';
+            bar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
+
+            if (score <= 1) {
+                bar.classList.add('bg-danger');
+                text.textContent = 'Seguridad: Muy débil';
+            } else if (score === 2) {
+                bar.classList.add('bg-warning');
+                text.textContent = 'Seguridad: Media';
+            } else if (score === 3) {
+                bar.classList.add('bg-success');
+                text.textContent = 'Seguridad: Fuerte';
+            } else {
+                bar.classList.add('bg-success');
+                text.textContent = 'Seguridad: Muy fuerte';
+            }
+        }
+
+        if (pwd) {
+            pwd.addEventListener('input', updateMeter);
+            updateMeter();
+        }
+
+        // UX: deshabilitar botón al enviar
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const btn = document.getElementById('submitBtn');
+            if (btn) {
+                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Creando...';
+                btn.disabled = true;
+            }
+        });
+    </script>
 }

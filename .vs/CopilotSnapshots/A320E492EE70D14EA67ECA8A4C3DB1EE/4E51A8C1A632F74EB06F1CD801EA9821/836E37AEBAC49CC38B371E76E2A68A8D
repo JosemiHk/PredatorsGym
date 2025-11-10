@@ -1,0 +1,128 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PredatorsGym.Models
+{
+    public class PerfilViewModel
+    {
+        public string Id { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "El email es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de email inválido")]
+        [Display(Name = "Correo electrónico")]
+        public string Email { get; set; } = string.Empty;
+
+        [Phone(ErrorMessage = "Formato de teléfono inválido")]
+        [Display(Name = "Teléfono")]
+        public string? Telefono { get; set; }
+
+        [Display(Name = "Nombre")]
+        [StringLength(50, ErrorMessage = "El nombre no puede tener más de 50 caracteres")]
+        public string? Nombre { get; set; }
+
+        [Display(Name = "Apellidos")]
+        [StringLength(100, ErrorMessage = "Los apellidos no pueden tener más de 100 caracteres")]
+        public string? Apellidos { get; set; }
+
+        [Display(Name = "Fecha de Nacimiento")]
+        [DataType(DataType.Date)]
+        public DateTime? FechaNacimiento { get; set; }
+
+        [Display(Name = "Género")]
+        public string? Genero { get; set; }
+
+        [Display(Name = "Altura (cm)")]
+        [Range(50, 300, ErrorMessage = "La altura debe estar entre 50 y 300 cm")]
+        public decimal? Altura { get; set; }
+
+        [Display(Name = "Peso Actual (kg)")]
+        [Range(20, 500, ErrorMessage = "El peso debe estar entre 20 y 500 kg")]
+        public decimal? PesoActual { get; set; }
+
+        [Display(Name = "Peso Objetivo (kg)")]
+        [Range(20, 500, ErrorMessage = "El peso objetivo debe estar entre 20 y 500 kg")]
+        public decimal? PesoObjetivo { get; set; }
+
+        [Display(Name = "Nivel de Experiencia")]
+        public string? NivelExperiencia { get; set; }
+
+        [Display(Name = "Objetivo Principal")]
+        public string? ObjetivoPrincipal { get; set; }
+
+        [Display(Name = "Días de entrenamiento por semana")]
+        [Range(1, 7, ErrorMessage = "Los días de entrenamiento deben estar entre 1 y 7")]
+        public int? DiasEntrenamientoSemana { get; set; }
+
+        [Display(Name = "Duración preferida de entrenamiento (minutos)")]
+        [Range(15, 180, ErrorMessage = "La duración debe estar entre 15 y 180 minutos")]
+        public int? DuracionPreferida { get; set; }
+
+        [Display(Name = "Lesiones o limitaciones")]
+        [StringLength(500, ErrorMessage = "No puede exceder 500 caracteres")]
+        public string? LesionesLimitaciones { get; set; }
+
+        [Display(Name = "Fecha de registro")]
+        public DateTime FechaRegistro { get; set; }
+
+        [Display(Name = "Última actividad")]
+        public DateTime? UltimaActividad { get; set; }
+
+        // Propiedades calculadas
+        public int? Edad
+        {
+            get
+            {
+                if (FechaNacimiento.HasValue)
+                {
+                    var today = DateTime.Today;
+                    var age = today.Year - FechaNacimiento.Value.Year;
+                    if (FechaNacimiento.Value.Date > today.AddYears(-age)) age--;
+                    return age;
+                }
+                return null;
+            }
+        }
+
+        public decimal? IMC
+        {
+            get
+            {
+                if (PesoActual.HasValue && Altura.HasValue && Altura > 0)
+                {
+                    var alturaMetros = Altura.Value / 100;
+                    return Math.Round(PesoActual.Value / (alturaMetros * alturaMetros), 2);
+                }
+                return null;
+            }
+        }
+
+        public string CategoriaIMC
+        {
+            get
+            {
+                if (IMC.HasValue)
+                {
+                    if (IMC < 18.5m) return "Bajo peso";
+                    if (IMC < 25m) return "Peso normal";
+                    if (IMC < 30m) return "Sobrepeso";
+                    return "Obesidad";
+                }
+                return "No calculado";
+            }
+        }
+
+        public string ColorIMC
+        {
+            get
+            {
+                if (IMC.HasValue)
+                {
+                    if (IMC < 18.5m) return "warning";
+                    if (IMC < 25m) return "success";
+                    if (IMC < 30m) return "warning";
+                    return "danger";
+                }
+                return "secondary";
+            }
+        }
+    }
+}

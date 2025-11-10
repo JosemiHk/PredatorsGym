@@ -1,0 +1,450 @@
+﻿@model PerfilViewModel
+@{
+    ViewData["Title"] = "Mi Perfil";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/perfil.css" asp-append-version="true" />
+}
+
+<div class="perfil-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar del Perfil -->
+            <div class="col-lg-4">
+                <div class="perfil-sidebar">
+                    <!-- Avatar y Info Básica -->
+                    <div class="perfil-avatar-section">
+                        <div class="perfil-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <h3 class="perfil-nombre">
+                            @if (!string.IsNullOrEmpty(Model.Nombre) || !string.IsNullOrEmpty(Model.Apellidos))
+                            {
+                                @Model.Nombre @Model.Apellidos
+                            }
+                            else
+                            {
+                                <span class="text-muted">Configura tu perfil</span>
+                            }
+                        </h3>
+                        <p class="perfil-email">@Model.Email</p>
+                        
+                        @if (Model.UltimaActividad.HasValue)
+                        {
+                            <p class="perfil-ultima-actividad">
+                                <i class="bi bi-clock"></i>
+                                Última actividad: @Model.UltimaActividad.Value.ToString("dd/MM/yyyy")
+                            </p>
+                        }
+                    </div>
+
+                    <!-- Estadísticas Rápidas -->
+                    <div class="perfil-stats">
+                        <h6 class="stats-title">📊 Tu Resumen</h6>
+                        
+                        @if (Model.Edad.HasValue)
+                        {
+                            <div class="stat-item">
+                                <span class="stat-label">Edad</span>
+                                <span class="stat-value">@Model.Edad años</span>
+                            </div>
+                        }
+
+                        @if (Model.IMC.HasValue)
+                        {
+                            <div class="stat-item">
+                                <span class="stat-label">IMC</span>
+                                <span class="stat-value badge bg-@Model.ColorIMC">
+                                    @Model.IMC (@Model.CategoriaIMC)
+                                </span>
+                            </div>
+                        }
+
+                        @if (Model.PesoActual.HasValue && Model.PesoObjetivo.HasValue)
+                        {
+                            <div class="stat-item">
+                                <span class="stat-label">Progreso</span>
+                                <span class="stat-value">
+                                    @Model.PesoActual kg → @Model.PesoObjetivo kg
+                                </span>
+                            </div>
+                        }
+
+                        @if (Model.DiasEntrenamientoSemana.HasValue)
+                        {
+                            <div class="stat-item">
+                                <span class="stat-label">Frecuencia</span>
+                                <span class="stat-value">@Model.DiasEntrenamientoSemana días/semana</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Acciones Rápidas -->
+                    <div class="perfil-actions">
+                        <a href="/Rutinas" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-lightning-charge"></i>
+                            Mis Rutinas
+                        </a>
+                        <a href="/Rutinas/Create" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-plus-circle"></i>
+                            Nueva Rutina
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario Principal -->
+            <div class="col-lg-8">
+                <div class="perfil-main">
+                    <!-- Header -->
+                    <div class="perfil-header">
+                        <h2>
+                            <i class="bi bi-person-gear"></i>
+                            Configuración del Perfil
+                        </h2>
+                        <p class="text-muted">
+                            Mantén tu información actualizada para obtener mejores recomendaciones
+                        </p>
+                    </div>
+
+                    <!-- Mensajes de Estado -->
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle"></i>
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Hay errores en el formulario:</strong>
+                            <div asp-validation-summary="All" class="mb-0 mt-2"></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Formulario -->
+                    <form asp-action="Perfil" method="post" class="perfil-form">
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.Id)
+                        @Html.HiddenFor(m => m.FechaRegistro)
+
+                        <!-- Información Personal -->
+                        <div class="form-section">
+                            <h5 class="section-title">
+                                <i class="bi bi-person"></i>
+                                Información Personal
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Nombre" class="form-control" placeholder="Nombre">
+                                        <label asp-for="Nombre">
+                                            <i class="bi bi-person"></i> Nombre
+                                        </label>
+                                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Apellidos" class="form-control" placeholder="Apellidos">
+                                        <label asp-for="Apellidos">
+                                            <i class="bi bi-people"></i> Apellidos
+                                        </label>
+                                        <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Email" class="form-control" placeholder="Email" required>
+                                        <label asp-for="Email">
+                                            <i class="bi bi-envelope"></i> Email *
+                                        </label>
+                                        <span asp-validation-for="Email" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Telefono" class="form-control" placeholder="Teléfono">
+                                        <label asp-for="Telefono">
+                                            <i class="bi bi-phone"></i> Teléfono
+                                        </label>
+                                        <span asp-validation-for="Telefono" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="FechaNacimiento" class="form-control" type="date">
+                                        <label asp-for="FechaNacimiento">
+                                            <i class="bi bi-calendar"></i> Fecha de Nacimiento
+                                        </label>
+                                        <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="Genero" class="form-select">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Masculino">Masculino</option>
+                                            <option value="Femenino">Femenino</option>
+                                            <option value="Otro">Otro</option>
+                                            <option value="Prefiero no decir">Prefiero no decir</option>
+                                        </select>
+                                        <label asp-for="Genero">
+                                            <i class="bi bi-gender-ambiguous"></i> Género
+                                        </label>
+                                        <span asp-validation-for="Genero" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Física -->
+                        <div class="form-section">
+                            <h5 class="section-title">
+                                <i class="bi bi-speedometer2"></i>
+                                Información Física
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="Altura" class="form-control" type="number" step="0.1" placeholder="170">
+                                        <label asp-for="Altura">
+                                            <i class="bi bi-arrow-up"></i> Altura (cm)
+                                        </label>
+                                        <span asp-validation-for="Altura" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="PesoActual" class="form-control" type="number" step="0.1" placeholder="70">
+                                        <label asp-for="PesoActual">
+                                            <i class="bi bi-speedometer"></i> Peso Actual (kg)
+                                        </label>
+                                        <span asp-validation-for="PesoActual" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mb-3">
+                                        <input asp-for="PesoObjetivo" class="form-control" type="number" step="0.1" placeholder="65">
+                                        <label asp-for="PesoObjetivo">
+                                            <i class="bi bi-bullseye"></i> Peso Objetivo (kg)
+                                        </label>
+                                        <span asp-validation-for="PesoObjetivo" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.IMC.HasValue)
+                            {
+                                <div class="imc-display">
+                                    <div class="imc-info">
+                                        <span class="imc-label">Tu IMC:</span>
+                                        <span class="badge bg-@Model.ColorIMC fs-6">
+                                            @Model.IMC - @Model.CategoriaIMC
+                                        </span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Información de Entrenamiento -->
+                        <div class="form-section">
+                            <h5 class="section-title">
+                                <i class="bi bi-lightning-charge"></i>
+                                Preferencias de Entrenamiento
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="NivelExperiencia" class="form-select">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Principiante">Principiante</option>
+                                            <option value="Intermedio">Intermedio</option>
+                                            <option value="Avanzado">Avanzado</option>
+                                            <option value="Experto">Experto</option>
+                                        </select>
+                                        <label asp-for="NivelExperiencia">
+                                            <i class="bi bi-trophy"></i> Nivel de Experiencia
+                                        </label>
+                                        <span asp-validation-for="NivelExperiencia" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="ObjetivoPrincipal" class="form-select">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="Perder peso">Perder peso</option>
+                                            <option value="Ganar músculo">Ganar músculo</option>
+                                            <option value="Tonificar">Tonificar</option>
+                                            <option value="Mantenimiento">Mantenimiento</option>
+                                            <option value="Mejorar resistencia">Mejorar resistencia</option>
+                                            <option value="Mejorar fuerza">Mejorar fuerza</option>
+                                        </select>
+                                        <label asp-for="ObjetivoPrincipal">
+                                            <i class="bi bi-target"></i> Objetivo Principal
+                                        </label>
+                                        <span asp-validation-for="ObjetivoPrincipal" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="DiasEntrenamientoSemana" class="form-select">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="1">1 día por semana</option>
+                                            <option value="2">2 días por semana</option>
+                                            <option value="3">3 días por semana</option>
+                                            <option value="4">4 días por semana</option>
+                                            <option value="5">5 días por semana</option>
+                                            <option value="6">6 días por semana</option>
+                                            <option value="7">7 días por semana</option>
+                                        </select>
+                                        <label asp-for="DiasEntrenamientoSemana">
+                                            <i class="bi bi-calendar-week"></i> Frecuencia Semanal
+                                        </label>
+                                        <span asp-validation-for="DiasEntrenamientoSemana" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select asp-for="DuracionPreferida" class="form-select">
+                                            <option value="">Seleccionar...</option>
+                                            <option value="15">15 minutos</option>
+                                            <option value="30">30 minutos</option>
+                                            <option value="45">45 minutos</option>
+                                            <option value="60">1 hora</option>
+                                            <option value="90">1.5 horas</option>
+                                            <option value="120">2 horas</option>
+                                        </select>
+                                        <label asp-for="DuracionPreferida">
+                                            <i class="bi bi-clock"></i> Duración Preferida
+                                        </label>
+                                        <span asp-validation-for="DuracionPreferida" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="LesionesLimitaciones" class="form-label">
+                                    <i class="bi bi-bandaid"></i> Lesiones o Limitaciones
+                                </label>
+                                <textarea asp-for="LesionesLimitaciones" class="form-control" rows="3" 
+                                          placeholder="Describe cualquier lesión, limitación física o condición médica que debamos considerar..."></textarea>
+                                <span asp-validation-for="LesionesLimitaciones" class="text-danger small"></span>
+                                <small class="form-text text-muted">
+                                    Esta información nos ayuda a crear rutinas más seguras y efectivas para ti.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i>
+                                Guardar Cambios
+                            </button>
+                            <a href="/" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-arrow-left"></i>
+                                Volver al Inicio
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Calcular IMC en tiempo real
+        function calcularIMC() {
+            const peso = parseFloat(document.querySelector('input[name="PesoActual"]').value);
+            const altura = parseFloat(document.querySelector('input[name="Altura"]').value);
+            
+            if (peso && altura && altura > 0) {
+                const alturaMetros = altura / 100;
+                const imc = (peso / (alturaMetros * alturaMetros)).toFixed(2);
+                
+                let categoria = '';
+                let colorClass = '';
+                
+                if (imc < 18.5) {
+                    categoria = 'Bajo peso';
+                    colorClass = 'warning';
+                } else if (imc < 25) {
+                    categoria = 'Peso normal';
+                    colorClass = 'success';
+                } else if (imc < 30) {
+                    categoria = 'Sobrepeso';
+                    colorClass = 'warning';
+                } else {
+                    categoria = 'Obesidad';
+                    colorClass = 'danger';
+                }
+                
+                // Actualizar la visualización del IMC si existe
+                const imcDisplay = document.querySelector('.imc-display');
+                if (imcDisplay) {
+                    imcDisplay.innerHTML = `
+                        <div class="imc-info">
+                            <span class="imc-label">Tu IMC:</span>
+                            <span class="badge bg-${colorClass} fs-6">
+                                ${imc} - ${categoria}
+                            </span>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        // Event listeners para cálculo de IMC
+        document.addEventListener('DOMContentLoaded', function() {
+            const pesoInput = document.querySelector('input[name="PesoActual"]');
+            const alturaInput = document.querySelector('input[name="Altura"]');
+            
+            if (pesoInput) pesoInput.addEventListener('input', calcularIMC);
+            if (alturaInput) alturaInput.addEventListener('input', calcularIMC);
+            
+            // Calcular al cargar si ya hay valores
+            calcularIMC();
+        });
+
+        // Validación del formulario
+        document.querySelector('.perfil-form').addEventListener('submit', function(e) {
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
+                submitBtn.disabled = true;
+            }
+        });
+
+        // Auto-dismiss alerts
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}

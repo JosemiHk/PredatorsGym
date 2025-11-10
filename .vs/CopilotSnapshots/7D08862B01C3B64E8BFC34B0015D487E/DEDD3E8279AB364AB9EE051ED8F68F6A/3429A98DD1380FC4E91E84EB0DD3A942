@@ -1,0 +1,343 @@
+﻿@{
+    ViewData["Title"] = "Premium - Membresías";
+    var membresiaActual = ViewBag.MembresiaActual as PredatorsGym.Models.Membresia;
+    var historialMembresias = ViewBag.HistorialMembresias as List<PredatorsGym.Models.Membresia>;
+    var planesDisponibles = ViewBag.PlanesDisponibles as List<PredatorsGym.Models.PlanMembresia>;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/membresia.css" asp-append-version="true" />
+}
+
+<div class="membresia-container">
+    <!-- Hero Section -->
+    <section class="membresia-hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content animate-on-scroll">
+                        <div class="hero-badge">
+                            <i class="bi bi-gem"></i>
+                            <span>Membresías Premium</span>
+                        </div>
+                        <h1 class="hero-title">
+                            Entrena como un 
+                            <span class="text-gradient">Depredador</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Accede a rutinas avanzadas con IA, planes de nutrición personalizados 
+                            y el mejor soporte para alcanzar tus objetivos fitness.
+                        </p>
+                        
+                        @if (membresiaActual != null)
+                        {
+                            <div class="current-plan-badge">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>Plan @membresiaActual.TipoMembresia Activo</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-visual animate-on-scroll" style="--delay: 200ms">
+                        <div class="feature-cards">
+                            <div class="floating-feature-card card-1">
+                                <i class="bi bi-robot"></i>
+                                <span>IA Avanzada</span>
+                            </div>
+                            <div class="floating-feature-card card-2">
+                                <i class="bi bi-heart-pulse"></i>
+                                <span>Nutrición Pro</span>
+                            </div>
+                            <div class="floating-feature-card card-3">
+                                <i class="bi bi-people"></i>
+                                <span>Comunidad</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Estado Actual -->
+    @if (membresiaActual != null)
+    {
+        <section class="current-membership-section">
+            <div class="container">
+                <div class="current-membership-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="membership-info">
+                                <div class="membership-header">
+                                    <h3>Tu Plan @membresiaActual.TipoMembresia</h3>
+                                    <span class="status-badge status-@membresiaActual.EstadoTexto.ToLower()">
+                                        @membresiaActual.EstadoTexto
+                                    </span>
+                                </div>
+                                <div class="membership-details">
+                                    <div class="detail-item">
+                                        <i class="bi bi-calendar-check"></i>
+                                        <span>Activo desde: @membresiaActual.FechaInicio.ToString("dd MMM yyyy")</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-calendar-x"></i>
+                                        <span>Renovación: @membresiaActual.FechaFin.ToString("dd MMM yyyy")</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="bi bi-clock"></i>
+                                        <span>@membresiaActual.DiasRestantes días restantes</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="membership-actions">
+                                @if (membresiaActual.EstaPorVencer)
+                                {
+                                    <button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#renewModal">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                        Renovar Plan
+                                    </button>
+                                }
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                                    <i class="bi bi-x-circle"></i>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    }
+
+    <!-- Planes de Membresía -->
+    <section class="pricing-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <div class="section-badge">
+                    <i class="bi bi-star"></i>
+                    <span>Planes Premium</span>
+                </div>
+                <h2 class="section-title">Elige tu Plan Ideal</h2>
+                <p class="section-subtitle">
+                    Transforma tu cuerpo con nuestros planes diseñados para cada nivel
+                </p>
+            </div>
+
+            <!-- Toggle Mensual/Anual -->
+            <div class="pricing-toggle text-center mb-5">
+                <div class="toggle-container">
+                    <span class="toggle-label">Mensual</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pricingToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-label">
+                        Anual 
+                        <span class="discount-badge">-20%</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Tarjetas de Planes -->
+            <div class="row justify-content-center">
+                @foreach (var plan in planesDisponibles)
+                {
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="pricing-card @(plan.EsPopular ? "popular" : "") animate-on-scroll">
+                            @if (plan.EsPopular)
+                            {
+                                <div class="popular-badge">
+                                    <i class="bi bi-star-fill"></i>
+                                    Más Popular
+                                </div>
+                            }
+                            
+                            <div class="plan-header">
+                                <div class="plan-icon">
+                                    <i class="@plan.Icono"></i>
+                                </div>
+                                <h3 class="plan-name">@plan.Nombre</h3>
+                                <p class="plan-description">@plan.Descripcion</p>
+                            </div>
+
+                            <div class="plan-pricing">
+                                <div class="price-container">
+                                    <span class="currency">$</span>
+                                    <span class="price monthly-price">@plan.PrecioMensual.ToString("0.00")</span>
+                                    <span class="price annual-price" style="display: none;">@((plan.PrecioAnual/12).ToString("0.00"))</span>
+                                    <span class="period monthly-period">/mes</span>
+                                    <span class="period annual-period" style="display: none;">/mes (anual)</span>
+                                </div>
+                                <div class="annual-total" style="display: none;">
+                                    Facturado anualmente: $@plan.PrecioAnual.ToString("0.00")
+                                </div>
+                            </div>
+
+                            <div class="plan-features">
+                                <ul>
+                                    @foreach (var caracteristica in plan.Caracteristicas)
+                                    {
+                                        <li>
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            @caracteristica
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+
+                            <div class="plan-action">
+                                @if (membresiaActual?.TipoMembresia == plan.Nombre)
+                                {
+                                    <button class="btn btn-outline-primary btn-lg w-100" disabled>
+                                        <i class="bi bi-check-circle"></i>
+                                        Plan Actual
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-primary btn-lg w-100 subscribe-btn" 
+                                            data-plan="@plan.Nombre" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#subscribeModal">
+                                        <i class="bi bi-rocket-takeoff"></i>
+                                        <span class="btn-text">Comenzar Ahora</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Historial de Membresías -->
+    @if (historialMembresias != null && historialMembresias.Any())
+    {
+        <section class="history-section">
+            <div class="container">
+                <h3 class="mb-4">Historial de Membresías</h3>
+                <div class="table-responsive">
+                    <table class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Plan</th>
+                                <th>Periodo</th>
+                                <th>Precio</th>
+                                <th>Estado</th>
+                                <th>Transacción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var membresia in historialMembresias)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@membresia.TipoMembresia</strong>
+                                    </td>
+                                    <td>
+                                        @membresia.FechaInicio.ToString("dd/MM/yyyy") - 
+                                        @membresia.FechaFin.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td>
+                                        $@membresia.Precio.ToString("0.00")
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-@(membresia.EsActiva ? "success" : "secondary")">
+                                            @membresia.EstadoTexto
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@membresia.TransaccionId</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    }
+</div>
+
+<!-- Modal de Suscripción -->
+<div class="modal fade" id="subscribeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Suscripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="SuscribirPlan" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="subscription-summary">
+                        <div class="plan-details">
+                            <h6>Plan seleccionado:</h6>
+                            <div class="selected-plan">
+                                <span id="selectedPlanName" class="plan-name-modal"></span>
+                                <span id="selectedPlanPrice" class="plan-price-modal"></span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedPlan" name="tipoPlan" />
+                        <input type="hidden" id="selectedDuration" name="duracion" value="mensual" />
+                        
+                        <div class="payment-simulation">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Modo Demo:</strong> Este es un sistema de demostración. 
+                                No se procesará ningún pago real.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i>
+                        Confirmar Suscripción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Cancelación -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Membresía</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>¿Estás seguro?</strong>
+                    <p class="mb-0 mt-2">
+                        Al cancelar tu membresía perderás acceso a todas las funciones premium 
+                        al final de tu periodo actual.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mantener Plan</button>
+                <form asp-action="CancelarMembresia" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i>
+                        Confirmar Cancelación
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/membresia.js" asp-append-version="true"></script>
+}

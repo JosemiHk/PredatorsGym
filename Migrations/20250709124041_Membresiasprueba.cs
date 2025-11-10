@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PredatorsGym.Migrations
 {
     /// <inheritdoc />
-    public partial class PruebaVoz : Migration
+    public partial class Membresiasprueba : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,6 +48,60 @@ namespace PredatorsGym.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Membresias",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TipoMembresia = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Precio = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
+                    FechaInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaFin = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EsActiva = table.Column<bool>(type: "bit", nullable: false),
+                    MetodoPago = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    TransaccionId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaCancelacion = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    NotasCancelacion = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Membresias", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PerfilesUsuarios",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Apellidos = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Telefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FechaNacimiento = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Genero = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Altura = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    PesoActual = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    PesoObjetivo = table.Column<decimal>(type: "decimal(5,2)", nullable: true),
+                    NivelExperiencia = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ObjetivoPrincipal = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    DiasEntrenamientoSemana = table.Column<int>(type: "int", nullable: true),
+                    DuracionPreferida = table.Column<int>(type: "int", nullable: true),
+                    LesionesLimitaciones = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ImagenPerfil = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    TipoImagen = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FechaActualizacion = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UltimaActividad = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PerfilesUsuarios", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -265,6 +319,42 @@ namespace PredatorsGym.Migrations
                 column: "RutinaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Membresias_EsActiva",
+                table: "Membresias",
+                column: "EsActiva");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Membresias_FechaFin",
+                table: "Membresias",
+                column: "FechaFin");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Membresias_FechaInicio",
+                table: "Membresias",
+                column: "FechaInicio");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Membresias_UsuarioId",
+                table: "Membresias",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PerfilesUsuarios_FechaActualizacion",
+                table: "PerfilesUsuarios",
+                column: "FechaActualizacion");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PerfilesUsuarios_UltimaActividad",
+                table: "PerfilesUsuarios",
+                column: "UltimaActividad");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PerfilesUsuarios_UsuarioId",
+                table: "PerfilesUsuarios",
+                column: "UsuarioId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rutinas_Estado",
                 table: "Rutinas",
                 column: "Estado");
@@ -300,6 +390,12 @@ namespace PredatorsGym.Migrations
 
             migrationBuilder.DropTable(
                 name: "Ejercicios");
+
+            migrationBuilder.DropTable(
+                name: "Membresias");
+
+            migrationBuilder.DropTable(
+                name: "PerfilesUsuarios");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

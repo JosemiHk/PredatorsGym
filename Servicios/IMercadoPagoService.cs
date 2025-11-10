@@ -1,0 +1,60 @@
+using System.Threading.Tasks;
+
+namespace PredatorsGym.Servicios
+{
+    public interface IMercadoPagoService
+    {
+        Task<MercadoPagoPreferenceResult> CreatePreferenceAsync(
+            string plan,
+            string duration,
+            decimal unitPrice,
+            string userId,
+            string? userEmail,
+            string baseUrl);
+
+        Task<MercadoPagoPreferenceInfo?> GetPreferenceAsync(string preferenceId);
+        Task<MercadoPagoPaymentInfo?> GetPaymentAsync(string paymentId);
+    }
+
+    public class MercadoPagoPreferenceResult
+    {
+        public string Id { get; set; } = string.Empty; // preference_id
+        public string InitPoint { get; set; } = string.Empty; // redirect URL
+        public string ExternalReference { get; set; } = string.Empty;
+    }
+
+    public class MercadoPagoPreferenceInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? ExternalReference { get; set; }
+        public string? InitPoint { get; set; }
+        public MercadoPagoMetadata? Metadata { get; set; }
+        public MercadoPagoItem[] Items { get; set; } = [];
+    }
+
+    public class MercadoPagoItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public string? CurrencyId { get; set; }
+    }
+
+    public class MercadoPagoMetadata
+    {
+        public string? UserId { get; set; }
+        public string? Plan { get; set; }
+        public string? Duration { get; set; }
+    }
+
+    public class MercadoPagoPaymentInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty; // approved, pending, rejected
+        public string? StatusDetail { get; set; }
+        public decimal TransactionAmount { get; set; }
+        public string? CurrencyId { get; set; }
+        public string? ExternalReference { get; set; }
+        public MercadoPagoMetadata? Metadata { get; set; }
+    }
+}

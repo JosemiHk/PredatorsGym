@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PredatorsGym.Models
 {
@@ -7,76 +7,105 @@ namespace PredatorsGym.Models
     {
         public int Id { get; set; }
 
-        // ❌ No poner Required, se llena en backend
-        public string UsuarioId { get; set; }
+        [Required]
+        public string UsuarioId { get; set; } = string.Empty;
 
         [Required]
-        public string Genero { get; set; }
+        [StringLength(20)]
+        public string Genero { get; set; } = string.Empty;
 
         [Required]
+        [Range(12, 120)]
         public int Edad { get; set; }
 
         [Required]
+        [Range(50, 300)]
         public double Altura { get; set; }
 
         [Required]
+        [Range(1, 500)]
         public double Peso { get; set; }
 
         public double IMC { get; set; }
-        public string EstadoIMC { get; set; }
+
+        [StringLength(50)]
+        public string EstadoIMC { get; set; } = string.Empty;
 
         [Required]
-        public string Objetivo { get; set; }
+        [StringLength(100)]
+        public string Objetivo { get; set; } = string.Empty;
 
         [Required]
-        public string Experiencia { get; set; }
+        [StringLength(50)]
+        public string Experiencia { get; set; } = string.Empty;
 
         [Required]
+        [Range(1, 500)]
         public double PesoObjetivo { get; set; }
 
         [Required]
-        public string LugarEntrenamiento { get; set; }
+        [StringLength(100)]
+        public string LugarEntrenamiento { get; set; } = string.Empty;
 
         public bool TieneImplementosBasicos { get; set; }
 
         [Required]
-        public string DiasEntrenamiento { get; set; }
+        [StringLength(50)]
+        public string DiasEntrenamiento { get; set; } = string.Empty;
 
-        public string RutinaGenerada { get; set; }
+        [Required]
+        public string RutinaGenerada { get; set; } = string.Empty;
 
-        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        // 🆕 NUEVAS PROPIEDADES PARA WORKOUT
-        /// <summary>
-        /// Duración total estimada de la rutina en minutos
-        /// </summary>
+        //  NUEVOS: Campos de auditoría
+        public DateTime? FechaModificacion { get; set; }
+
+        [StringLength(450)]
+        public string? CreadoPor { get; set; }
+
+        [StringLength(450)]
+        public string? ModificadoPor { get; set; }
+
+        [Range(0, 300)]
         public int DuracionTotalMinutos { get; set; }
 
-        /// <summary>
-        /// Estado de la rutina (Creada, EnProgreso, Completada, Pausada)
-        /// </summary>
         public EstadoRutina Estado { get; set; } = EstadoRutina.Creada;
 
-        /// <summary>
-        /// Fecha y hora de inicio del entrenamiento
-        /// </summary>
         public DateTime? FechaInicioEntrenamiento { get; set; }
 
-        /// <summary>
-        /// Fecha y hora de finalización del entrenamiento
-        /// </summary>
         public DateTime? FechaFinEntrenamiento { get; set; }
 
-        // 🆕 NAVEGACIÓN A EJERCICIOS
+        // Navegación a ejercicios
         public virtual ICollection<Ejercicio> Ejercicios { get; set; } = new List<Ejercicio>();
+
+        // Propiedades calculadas
+        [NotMapped]
+        public TimeSpan? DuracionReal
+        {
+            get
+            {
+                if (FechaInicioEntrenamiento.HasValue && FechaFinEntrenamiento.HasValue)
+                {
+                    return FechaFinEntrenamiento.Value - FechaInicioEntrenamiento.Value;
+                }
+                return null;
+            }
+        }
+
+        [NotMapped]
+        public bool PuedeIniciar => Estado == EstadoRutina.Creada || Estado == EstadoRutina.Pausada;
+
+        [NotMapped]
+        public bool PuedeCompletar => Estado == EstadoRutina.EnProgreso;
     }
 
     public enum EstadoRutina
     {
-        Creada,
-        EnProgreso,
-        Pausada,
-        Completada,
-        Cancelada
+        Creada = 0,
+        EnProgreso = 1,
+        Pausada = 2,
+        Completada = 3,
+        Cancelada = 4
     }
 }
