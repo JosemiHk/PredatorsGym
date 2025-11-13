@@ -55,6 +55,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
+
+
+
 // SignalR
 builder.Services.AddSignalR(options =>
 {
@@ -70,6 +73,9 @@ builder.Services.AddHttpClient<IAzureOpenAIService, AzureOpenAIService>();
 builder.Services.AddScoped<IAzureSpeechService, AzureSpeechService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
+
+// Registro del servicio de nutrición (agregar cerca de otros servicios)
+builder.Services.AddScoped<INutricionConsejosService, NutricionConsejosService>();
 
 // Configure FormOptions and IISServerOptions
 builder.Services.Configure<FormOptions>(options =>

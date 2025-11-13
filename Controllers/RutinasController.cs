@@ -14,16 +14,19 @@ namespace PredatorsGym.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IAzureOpenAIService _azureOpenAIService;
+        private readonly INutricionConsejosService _nutricionConsejosService;
         private readonly ILogger<RutinasController> _logger;
 
         public RutinasController(ApplicationDbContext context,
                                  UserManager<IdentityUser> userManager,
                                  IAzureOpenAIService azureOpenAIService,
+                                 INutricionConsejosService nutricionConsejosService,
                                  ILogger<RutinasController> logger)
         {
             _context = context;
             _userManager = userManager;
             _azureOpenAIService = azureOpenAIService;
+            _nutricionConsejosService = nutricionConsejosService;
             _logger = logger;
         }
 
@@ -121,7 +124,6 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
                 {
                     _logger.LogError("RutinaGenerada está vacía después de llamada a Azure OpenAI");
                     ModelState.AddModelError("", "No se pudo generar la rutina. Intenta nuevamente.");
-                    // Nota: devolvemos la vista con los datos ya precargados
                     return View("Create", model);
                 }
                 model.RutinaGenerada = generado;
@@ -137,6 +139,9 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Rutina generada y guardada exitosamente para usuario {UserId}. ID: {RutinaId}", user.Id, model.Id);
+
+                // (Opcional) precargar consejos: se calcularán en RutinaGenerada de todos modos
+                // TempData["ConsejosNutricionCache"] = Newtonsoft.Json.JsonConvert.SerializeObject(await _nutricionConsejosService.GenerarConsejosAsync(user.Id));
 
                 return RedirectToAction("RutinaGenerada", new { id = model.Id });
             }
@@ -172,6 +177,10 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
 
                 _logger.LogInformation("Mostrando rutina {RutinaId} para usuario {UserId}. Contenido: {Length} caracteres",
                     rutina.Id, user.Id, rutina.RutinaGenerada?.Length ?? 0);
+
+                // Obtener consejos de nutrición (solo Elite verá contenido)
+                var consejos = await _nutricionConsejosService.GenerarConsejosAsync(user.Id);
+                ViewBag.ConsejosNutricion = consejos;
 
                 return View(rutina);
             }
@@ -251,8 +260,6 @@ Por favor crea una rutina completa y personalizada considerando estos factores.
 
             if (string.IsNullOrWhiteSpace(model.LugarEntrenamiento))
                 model.LugarEntrenamiento = "Casa"; // por defecto si no existe en perfil
-
-            // TieneImplementosBasicos: si lo agregas al perfil, mapea aquí.
         }
 
         private static int? CalcularEdad(DateTime? fechaNacimiento)
