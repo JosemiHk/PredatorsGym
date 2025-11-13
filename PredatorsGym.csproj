@@ -22,4 +22,8 @@
     <PackageReference Include="OpenAI-DotNet" Version="8.8.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Tests\" />
+  </ItemGroup>
+
 </Project>
