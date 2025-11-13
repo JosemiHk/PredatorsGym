@@ -42,7 +42,7 @@ namespace PredatorsGym.Servicios
                 r.Consejos.Add("Aumenta tu ingesta de proteína magra.");
 
             // Consejo base
-            r.Consejos.Add("Mantén hidratación suficiente.");
+            r.Consejos.Add("Mantén hidratación suficiente, para mejores resultados.");
 
             return r;
         }
