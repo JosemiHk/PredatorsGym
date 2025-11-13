@@ -58,6 +58,10 @@
               "target": "Package",
               "version": "[1.44.1, )"
             },
+            "Markdig": {
+              "target": "Package",
+              "version": "[0.43.0, )"
+            },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.17, )"

@@ -1,9 +1,149 @@
 ﻿@model PredatorsGym.Models.Rutina
 @using PredatorsGym.Models
+@using Markdig // 1. IMPORTAMOS MARKDIG
+
 @{
     ViewData["Title"] = "Rutina Generada";
     Layout = "_Layout";
     var consejos = ViewBag.ConsejosNutricion as NutritionAdviceResult;
+
+    // 2. PROCESAMOS EL MARKDOWN A HTML
+    var rutinaHtml = "";
+    if (!string.IsNullOrWhiteSpace(Model.RutinaGenerada))
+    {
+        var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+        rutinaHtml = Markdown.ToHtml(Model.RutinaGenerada, pipeline);
+    }
+}
+
+@section Styles {
+    <style>
+        /* * CSS para renderizar el contenido de Markdig.
+                 * Alcance (scope) a la clase 'generated-routine-content' que pusimos en el div.
+                */
+        .generated-routine-content {
+            font-size: 0.95rem;
+            line-height: 1.65;
+            color: var(--gray-700, #374151); /* Color de texto por defecto */
+        }
+
+            /* * Encabezados (e.g., ### Día 1: Full Body)
+                 * Se verán como títulos claros de sección.
+                */
+            .generated-routine-content h3 {
+                font-size: clamp(1.2rem, 5vw, 1.4rem); /* Título responsive */
+                font-weight: 700;
+                color: var(--gray-900, #111827);
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 3px solid var(--primary, #EF233C); /* Línea con tu color principal */
+            }
+
+                .generated-routine-content h3:first-of-type {
+                    margin-top: 0.25rem;
+                }
+
+            /* * Párrafos (El texto de introducción)
+                */
+            .generated-routine-content p {
+                margin-bottom: 1.25rem;
+                font-size: 1rem;
+            }
+
+                /* * Sub-títulos (e.g., **Ejercicio Principal:**)
+                 * Esto estiliza un <p> que SÓLO contiene un <strong>
+                */
+                .generated-routine-content p > strong:only-child {
+                    display: block;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--gray-800, #1f2937);
+                    margin-top: 1.5rem;
+                    margin-bottom: 0.75rem;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                }
+
+            /* * Listas (El core de los ejercicios)
+                 * Removemos viñetas y preparamos para un estilo de "tarjeta".
+                */
+            .generated-routine-content ul,
+            .generated-routine-content ol {
+                list-style: none;
+                padding-left: 0;
+                margin-bottom: 1.5rem;
+            }
+
+            /* * Cada item de la lista (Cada ejercicio)
+                 * Lo convertimos en una mini-tarjeta.
+                */
+            .generated-routine-content li {
+                position: relative;
+                padding: 0.85rem 1rem 0.85rem 2.5rem; /* Espacio para el ícono */
+                margin-bottom: 0.65rem;
+                background-color: var(--gray-50, #f8fafc);
+                border-radius: 10px;
+                border: 1px solid var(--gray-200, #e2e8f0);
+                transition: all 0.2s ease-in-out;
+            }
+
+                /* Efecto hover sutil */
+                .generated-routine-content li:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+                    border-color: var(--gray-300, #cbd5e1);
+                }
+
+                /* * Ícono para CADA item de la lista (<li>)
+                 * Usamos un SVG de Bootstrap Icons (flexcha) como máscara.
+                 * Es más robusto que usar la fuente de íconos.
+                */
+                .generated-routine-content li::before {
+                    content: '';
+                    position: absolute;
+                    left: 1rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 1.1rem;
+                    height: 1.1rem;
+                    background-color: var(--primary, #EF233C); /* Tu color principal */
+                    /* SVG de Bootstrap Icon: 'bi-arrow-right-short' */
+                    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-arrow-right-short' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z'/%3E%3C/svg%3E");
+                    mask-repeat: no-repeat;
+                    mask-size: contain;
+                }
+
+                /* * El nombre del ejercicio (e.g., **Sentadillas básicas**)
+                */
+                .generated-routine-content li strong {
+                    font-size: 1.05rem;
+                    font-weight: 600;
+                    color: var(--gray-800, #1f2937);
+                }
+
+            /* * Listas ordenadas (e.g., 1. Flexiones 2. Puente)
+                 * Les damos un estilo más simple, de sub-tareas.
+                */
+            .generated-routine-content ol {
+                list-style: decimal;
+                list-style-position: inside;
+                padding-left: 0.5rem;
+                margin-top: 0.75rem;
+            }
+
+                .generated-routine-content ol li {
+                    background-color: var(--white, #fff); /* Sin fondo */
+                    border: none;
+                    box-shadow: none;
+                    padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+                }
+                    /* Ocultamos el ícono de flecha para las sub-tareas */
+                    .generated-routine-content ol li::before {
+                        display: none;
+                    }
+
+    </style>
 }
 
 <div class="container py-3">
@@ -11,12 +151,12 @@
         <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
                 <a href="@Url.Action("Index", "Home")" class="text-decoration-none">
-                    <i class="bi bi-house"></i> Inicio
+                    <i class="bi bi-house" aria-hidden="true"></i> Inicio
                 </a>
             </li>
             <li class="breadcrumb-item">
                 <a href="@Url.Action("Index", "Rutinas")" class="text-decoration-none">
-                    <i class="bi bi-lightning-charge"></i> Mis Rutinas
+                    <i class="bi bi-lightning-charge" aria-hidden="true"></i> Mis Rutinas
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">Rutina Generada</li>
@@ -24,26 +164,16 @@
     </nav>
 
     <div class="row g-3">
-        <!-- Rutina -->
         <div class="col-12 col-lg-8">
             <div class="card shadow-sm">
                 <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
-                        <h5 class="mb-0"><i class="bi bi-star-fill text-warning"></i> Tu Rutina Personalizada</h5>
+                        <h5 class="mb-0"><i class="bi bi-star-fill text-warning" aria-hidden="true"></i> Tu Rutina Personalizada</h5>
                         <small class="text-muted">Creada el @Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</small>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
-                            <i class="bi bi-plus-circle"></i> Nueva Rutina
-                        </a>
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-list-task"></i> Mis Rutinas
-                        </a>
                     </div>
                 </div>
 
                 <div class="card-body">
-                    <!-- Stats -->
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-3">
                             <div class="border rounded p-2 h-100">
@@ -72,10 +202,9 @@
                         </div>
                     </div>
 
-                    <!-- Lista de ejercicios (si existen) -->
                     @if (Model.Ejercicios != null && Model.Ejercicios.Any())
                     {
-                        <h6 class="mb-2"><i class="bi bi-clipboard-check"></i> Plan de ejercicios</h6>
+                        <h6 class="mb-2"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Plan de ejercicios</h6>
                         <ul class="list-group list-group-flush">
                             @foreach (var e in Model.Ejercicios.OrderBy(x => x.Orden))
                             {
@@ -93,9 +222,9 @@
                                         </span>
                                     </div>
                                     <div class="mt-1 small text-muted d-flex flex-wrap gap-3">
-                                        <span><i class="bi bi-stopwatch"></i> Duración estimada: @e.DuracionEstimada s</span>
-                                        <span><i class="bi bi-hourglass-split"></i> Descanso: @e.TiempoDescanso s</span>
-                                        <span><i class="bi bi-hash"></i> Orden: @e.Orden</span>
+                                        <span><i class="bi bi-stopwatch" aria-hidden="true"></i> Duración estimada: @e.DuracionEstimada s</span>
+                                        <span><i class="bi bi-hourglass-split" aria-hidden="true"></i> Descanso: @e.TiempoDescanso s</span>
+                                        <span><i class="bi bi-hash" aria-hidden="true"></i> Orden: @e.Orden</span>
                                     </div>
                                 </li>
                             }
@@ -103,16 +232,17 @@
                     }
                     else
                     {
-                        <!-- Fallback: texto de la rutina generada -->
-                        <h6 class="mb-2"><i class="bi bi-clipboard-check"></i> Detalle de la rutina</h6>
-                        @if (!string.IsNullOrWhiteSpace(Model.RutinaGenerada))
+                        <h6 class="mb-2"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Detalle de la rutina</h6>
+                        @if (!string.IsNullOrWhiteSpace(rutinaHtml))
                         {
-                            <pre class="bg-light p-3 rounded" style="white-space: pre-wrap">@Model.RutinaGenerada</pre>
+                            <div class="generated-routine-content">
+                                @Html.Raw(rutinaHtml)
+                            </div>
                         }
                         else
                         {
                             <div class="alert alert-warning mb-0">
-                                <i class="bi bi-exclamation-triangle"></i> No hay contenido de rutina disponible.
+                                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> No hay contenido de rutina disponible.
                             </div>
                         }
                     }
@@ -120,20 +250,19 @@
             </div>
         </div>
 
-        <!-- Consejos nutricionales -->
         <div class="col-12 col-lg-4">
             @if (consejos?.EsElegible == true && consejos.Consejos?.Count > 0)
             {
                 <section class="card shadow-sm">
                     <div class="card-header bg-warning text-dark d-flex align-items-center">
-                        <i class="bi bi-heart-pulse me-2"></i>
+                        <i class="bi bi-heart-pulse me-2" aria-hidden="true"></i>
                         <strong>Consejos nutricionales personalizados (Elite)</strong>
                     </div>
                     <ul class="list-group list-group-flush">
                         @foreach (var c in consejos.Consejos)
                         {
                             <li class="list-group-item d-flex">
-                                <i class="bi bi-lightning-charge text-warning me-2 mt-1"></i>
+                                <i class="bi bi-lightning-charge text-warning me-2 mt-1" aria-hidden="true"></i>
                                 <span>@c</span>
                             </li>
                         }
@@ -146,33 +275,27 @@
             else if (consejos != null && !consejos.EsElegible)
             {
                 <div class="alert alert-secondary">
-                    <i class="bi bi-lock-fill"></i> Consejos nutricionales exclusivos del plan Elite.
+                    <i class="bi bi-lock-fill" aria-hidden="true"></i> Consejos nutricionales exclusivos del plan Elite.
                     <a href="/Membresia" class="alert-link">Mejora tu plan</a>.
                 </div>
             }
 
-            <!-- Resumen lateral -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <i class="bi bi-graph-up"></i> Resumen
-                </div>
-                <div class="card-body">
-                    <div class="mb-2"><strong>Objetivo:</strong> @Model.Objetivo</div>
-                    <div class="mb-2"><strong>Nivel:</strong> @Model.Experiencia</div>
-                    <div class="mb-2"><strong>Días/Semana:</strong> @Model.DiasEntrenamiento</div>
-                    <div class="mb-2"><strong>IMC:</strong> @Model.IMC.ToString("F1") (@Model.EstadoIMC)</div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Acciones principales (mobile-first) -->
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-end mt-3">
         <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
-            <i class="bi bi-rocket-takeoff"></i> Generar nueva rutina
+            <i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Generar nueva rutina
         </a>
         <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-lg">
-            <i class="bi bi-list-task"></i> Ver mis rutinas
+            <i class="bi bi-list-task" aria-hidden="true"></i> Ver mis rutinas
         </a>
     </div>
 </div>
+
+@* NOTA RÁPIDA:
+    Es posible que necesites añadir un poco de CSS para que el 
+    HTML generado por Markdig (h1, h2, ul, li) se vea bonito. 
+    Puedes hacerlo apuntando a la clase 'generated-routine-content'
+    que añadimos en tu archivo CSS.
+*@
