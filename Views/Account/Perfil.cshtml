@@ -2,584 +2,440 @@
 @{
     ViewData["Title"] = "Mi Perfil";
     Layout = "_Layout";
+
+    // Opciones para los <select>
+    // A futuro, esto debería venir de un Enum o tabla de BD
+    var nivelesExperiencia = new List<string> { "Principiante", "Intermedio", "Avanzado" };
+    var objetivos = new List<string> { "Perder peso", "Desarrollo muscular", "Fuerza máxima", "Resistencia", "Recomposición corporal", "Salud General" };
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/perfil.css" asp-append-version="true" />
     <style>
-        .profile-image-container {
-            position: relative;
-            display: inline-block;
+        /* Layout general */
+        .profile-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-bottom: 2rem; /* Espacio para el botón flotante */
         }
 
-        .profile-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .profile-image-placeholder {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .page-title {
             display: flex;
+            gap: .75rem;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-            border: 4px solid #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .image-upload-overlay {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-
-            .image-upload-overlay:hover {
-                background: #0056b3;
-                transform: scale(1.1);
-            }
-
-        .perfil-avatar-section {
-            text-align: center;
-            padding: 2rem 1rem;
-            border-bottom: 1px solid #eee;
             margin-bottom: 1.5rem;
         }
+
+            .page-title h2 {
+                font-size: clamp(1.6rem, 4.5vw, 2rem);
+                margin: 0;
+                font-weight: 700;
+            }
+
+        /* Grid responsive */
+        .form-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        @@media (min-width: 768px) {
+            .form-grid.cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-grid.cols-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Secciones */
+        .section-card {
+            background: var(--white, #fff);
+            border: 1px solid var(--gray-200, #e2e8f0);
+            border-radius: var(--border-radius-lg, 14px);
+            box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,.06));
+            margin-bottom: 1.5rem;
+        }
+
+            .section-card h3 {
+                font-size: 1.1rem;
+                font-weight: 600;
+                letter-spacing: .5px;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                text-transform: uppercase;
+                color: var(--gray-700, #374151);
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--gray-200, #e2e8f0);
+            }
+
+                .section-card h3 i {
+                    font-size: 1.2rem;
+                    color: var(--primary, #EF233C);
+                }
+
+            .section-card .card-content {
+                padding: 1.25rem;
+            }
+
+        /* Inputs modernos (Floating Label) */
+        .floating-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+
+            .floating-group label {
+                font-size: .75rem;
+                font-weight: 600;
+                letter-spacing: .5px;
+                text-transform: uppercase;
+                color: var(--gray-600, #475569);
+                margin-left: 2px;
+            }
+
+            .floating-group input.form-control,
+            .floating-group select.form-select,
+            .floating-group textarea.form-control {
+                border: 2px solid var(--gray-200, #e2e8f0);
+                background: var(--gray-50, #f8fafc);
+                font-size: .95rem;
+                padding: .65rem .75rem;
+                border-radius: 10px;
+                transition: .25s;
+            }
+
+                .floating-group input.form-control:focus,
+                .floating-group select.form-select:focus,
+                .floating-group textarea.form-control:focus {
+                    border-color: var(--primary, #EF233C);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(239,35,60,.15);
+                }
+
+        .form-text {
+            font-size: .75rem;
+            margin-left: 2px;
+        }
+
+        /* Sliders */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+            .slider-wrapper input[type=range] {
+                flex: 1;
+                accent-color: var(--primary, #EF233C);
+            }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: center;
+            font-size: .8rem;
+            font-weight: 600;
+            background: var(--gray-100, #f1f5f9);
+            padding: .35rem .55rem;
+            border-radius: 6px;
+            border: 1px solid var(--gray-200, #e2e8f0);
+        }
+
+        /* Upload de Imagen */
+        .image-upload-wrapper {
+            display: grid;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @@media (min-width: 576px) {
+            .image-upload-wrapper {
+                grid-template-columns: auto 1fr;
+            }
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gray-100, #f1f5f9);
+            border: 3px solid var(--gray-200, #e2e8f0);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+        }
+
+            .image-preview img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .image-preview .preview-icon {
+                font-size: 3rem;
+                color: var(--gray-400, #9ca3af);
+            }
+
+        .file-input-wrapper {
+            flex: 1;
+        }
+
+        .form-control[type="file"] {
+            background: var(--gray-50, #f8fafc);
+            border: 2px solid var(--gray-200, #e2e8f0);
+            border-radius: 10px;
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary.save-btn {
+            background: linear-gradient(135deg, var(--primary,#EF233C) 0%, var(--accent,#D90429) 100%);
+            border: none;
+            font-weight: 600;
+            padding: .75rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px -5px rgba(239,35,60,.4);
+            transition: .35s;
+        }
+
+            .btn-primary.save-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 22px -6px rgba(239,35,60,.45);
+            }
     </style>
 }
 
-<div class="perfil-container">
-    <div class="container">
-        <div class="row">
-            <!-- Sidebar del Perfil -->
-            <div class="col-lg-4">
-                <div class="perfil-sidebar">
-                    <!-- Avatar y Info Básica -->
-                    <div class="perfil-avatar-section">
-                        <div class="profile-image-container">
-                            @if (Model.TieneImagenPerfil)
-                            {
-                                <img src="@Url.Action("ImagenPerfil", "Account")?v=@DateTime.Now.Ticks" alt="Foto de perfil" class="profile-image" id="currentProfileImage" />
-                            }
-                            else
-                            {
-                                <div class="profile-image-placeholder" id="profilePlaceholder">
-                                    <i class="bi bi-person-fill"></i>
-                                </div>
-                            }
-                            <button type="button" class="image-upload-overlay" onclick="document.getElementById('imageUpload').click()" title="Cambiar foto">
-                                <i class="bi bi-camera-fill"></i>
-                            </button>
-                        </div>
+<div class="profile-wrapper">
+    <div class="page-title">
+        <i class="bi bi-person-circle text-primary"></i>
+        <h2>Mi Perfil</h2>
+    </div>
 
-                        <h3 class="perfil-nombre mt-3">
-                            @if (!string.IsNullOrEmpty(Model.Nombre) || !string.IsNullOrEmpty(Model.Apellidos))
-                            {
-                                @Model.Nombre  @Model.Apellidos
-                            }
-                            else
-                            {
-                                <span class="text-muted">Configura tu perfil</span>
-                            }
-                        </h3>
-                        <p class="perfil-email">@Model.Email</p>
+    @if (TempData["SuccessMessage"] is string ok)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @ok
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-                        @if (Model.UltimaActividad.HasValue)
-                        {
-                            <p class="perfil-ultima-actividad">
-                                <i class="bi bi-clock"></i>
-                                Última actividad: @Model.UltimaActividad.Value.ToString("dd/MM/yyyy")
-                            </p>
-                        }
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm"></div>
+
+
+    <form asp-action="Perfil" method="post" enctype="multipart/form-data" novalidate>
+        @Html.AntiForgeryToken()
+
+        <div class="section-card">
+            <h3><i class="bi bi-person-badge"></i> Datos Personales</h3>
+            <div class="card-content">
+                <div class="form-grid cols-2">
+                    <div class="floating-group">
+                        <label asp-for="Nombre"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span class="text-danger small" asp-validation-for="Nombre"></span>
                     </div>
-
-                    <!-- Estadísticas Rápidas -->
-                    <div class="perfil-stats">
-                        <h6 class="stats-title">📊 Tu Resumen</h6>
-
+                    <div class="floating-group">
+                        <label asp-for="Apellidos"></label>
+                        <input asp-for="Apellidos" class="form-control" />
+                        <span class="text-danger small" asp-validation-for="Apellidos"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="Telefono"></label>
+                        <input asp-for="Telefono" type="tel" class="form-control" maxlength="15" pattern="\d{0,15}" />
+                        <span class="form-text">Solo dígitos. Máx. 15.</span>
+                        <span class="text-danger small" asp-validation-for="Telefono"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="FechaNacimiento"></label>
+                        <input asp-for="FechaNacimiento" class="form-control" type="date" />
                         @if (Model.Edad.HasValue)
                         {
-                            <div class="stat-item">
-                                <span class="stat-label">Edad</span>
-                                <span class="stat-value">@Model.Edad años</span>
-                            </div>
+                            <span class="form-text">Edad calculada: <strong>@Model.Edad años</strong></span>
                         }
-
-                        @if (Model.IMC.HasValue)
-                        {
-                            <div class="stat-item">
-                                <span class="stat-label">IMC</span>
-                                <span class="stat-value badge bg-@Model.ColorIMC">
-                                    @Model.IMC (@Model.CategoriaIMC)
-                                </span>
-                            </div>
-                        }
-
-                        @if (Model.PesoActual.HasValue && Model.PesoObjetivo.HasValue)
-                        {
-                            <div class="stat-item">
-                                <span class="stat-label">Progreso</span>
-                                <span class="stat-value">
-                                    @Model.PesoActual kg → @Model.PesoObjetivo kg
-                                </span>
-                            </div>
-                        }
-
-                        @if (Model.DiasEntrenamientoSemana.HasValue)
-                        {
-                            <div class="stat-item">
-                                <span class="stat-label">Frecuencia</span>
-                                <span class="stat-value">@Model.DiasEntrenamientoSemana días/semana</span>
-                            </div>
-                        }
+                        <span class="text-danger small" asp-validation-for="FechaNacimiento"></span>
                     </div>
-
-                    <!-- Acciones Rápidas -->
-                    <div class="perfil-actions">
-                        <a href="/Rutinas" class="btn btn-primary w-100 mb-2">
-                            <i class="bi bi-lightning-charge"></i>
-                            Mis Rutinas
-                        </a>
-                        <a href="/Rutinas/Create" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-plus-circle"></i>
-                            Nueva Rutina
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formulario Principal -->
-            <div class="col-lg-8">
-                <div class="perfil-main">
-                    <!-- Header -->
-                    <div class="perfil-header">
-                        <h2>
-                            <i class="bi bi-person-gear"></i>
-                            Configuración del Perfil
-                        </h2>
-                        <p class="text-muted">
-                            Mantén tu información actualizada para obtener mejores recomendaciones
-                        </p>
-                    </div>
-
-                    <!-- Mensajes de Estado -->
-                    @if (TempData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="bi bi-check-circle"></i>
-                            @TempData["SuccessMessage"]
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    @if (!ViewData.ModelState.IsValid)
-                    {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            <strong>Hay errores en el formulario:</strong>
-                            <div asp-validation-summary="All" class="mb-0 mt-2"></div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    }
-
-                    <!-- Formulario -->
-                    <form asp-action="Perfil" method="post" enctype="multipart/form-data" class="perfil-form">
-                        @Html.AntiForgeryToken()
-                        @Html.HiddenFor(m => m.Id)
-                        @Html.HiddenFor(m => m.FechaRegistro)
-
-                        <!-- Sección de Imagen de Perfil (OCULTA) -->
-                        <input type="file" asp-for="ImagenPerfil" id="imageUpload" accept="image/*" class="d-none" />
-
-                        <!-- Información Personal -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="bi bi-person"></i>
-                                Información Personal
-                            </h5>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="Nombre" class="form-control" placeholder="Nombre">
-                                        <label asp-for="Nombre">
-                                            <i class="bi bi-person"></i> Nombre
-                                        </label>
-                                        <span asp-validation-for="Nombre" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="Apellidos" class="form-control" placeholder="Apellidos">
-                                        <label asp-for="Apellidos">
-                                            <i class="bi bi-people"></i> Apellidos
-                                        </label>
-                                        <span asp-validation-for="Apellidos" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="Email" class="form-control" placeholder="Email" required>
-                                        <label asp-for="Email">
-                                            <i class="bi bi-envelope"></i> Email *
-                                        </label>
-                                        <span asp-validation-for="Email" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="Telefono" class="form-control" placeholder="Teléfono">
-                                        <label asp-for="Telefono">
-                                            <i class="bi bi-phone"></i> Teléfono
-                                        </label>
-                                        <span asp-validation-for="Telefono" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="FechaNacimiento" class="form-control" type="date">
-                                        <label asp-for="FechaNacimiento">
-                                            <i class="bi bi-calendar"></i> Fecha de Nacimiento
-                                        </label>
-                                        <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="Genero" class="form-select">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="Masculino">Masculino</option>
-                                            <option value="Femenino">Femenino</option>
-                                            <option value="Otro">Otro</option>
-                                            <option value="Prefiero no decir">Prefiero no decir</option>
-                                        </select>
-                                        <label asp-for="Genero">
-                                            <i class="bi bi-gender-ambiguous"></i> Género
-                                        </label>
-                                        <span asp-validation-for="Genero" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Mostrar información sobre subida de imagen -->
-                            <div class="mb-3">
-                                <span asp-validation-for="ImagenPerfil" class="text-danger small d-block"></span>
-                                <small class="form-text text-muted">
-                                    <i class="bi bi-info-circle"></i>
-                                    Para cambiar tu foto de perfil, haz clic en el ícono de cámara en tu imagen actual.
-                                    Formatos permitidos: JPG, JPEG, PNG, GIF, BMP, WEBP. Tamaño máximo: 5MB.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Información Física -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="bi bi-speedometer2"></i>
-                                Información Física
-                            </h5>
-
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="Altura" class="form-control" type="number" step="0.1" placeholder="170">
-                                        <label asp-for="Altura">
-                                            <i class="bi bi-arrow-up"></i> Altura (cm)
-                                        </label>
-                                        <span asp-validation-for="Altura" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="PesoActual" class="form-control" type="number" step="0.1" placeholder="70">
-                                        <label asp-for="PesoActual">
-                                            <i class="bi bi-speedometer"></i> Peso Actual (kg)
-                                        </label>
-                                        <span asp-validation-for="PesoActual" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-floating mb-3">
-                                        <input asp-for="PesoObjetivo" class="form-control" type="number" step="0.1" placeholder="65">
-                                        <label asp-for="PesoObjetivo">
-                                            <i class="bi bi-bullseye"></i> Peso Objetivo (kg)
-                                        </label>
-                                        <span asp-validation-for="PesoObjetivo" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            @if (Model.IMC.HasValue)
-                            {
-                                <div class="imc-display">
-                                    <div class="imc-info">
-                                        <span class="imc-label">Tu IMC:</span>
-                                        <span class="badge bg-@Model.ColorIMC fs-6">
-                                            @Model.IMC - @Model.CategoriaIMC
-                                        </span>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        <!-- Información de Entrenamiento -->
-                        <div class="form-section">
-                            <h5 class="section-title">
-                                <i class="bi bi-lightning-charge"></i>
-                                Preferencias de Entrenamiento
-                            </h5>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="NivelExperiencia" class="form-select">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="Principiante">Principiante</option>
-                                            <option value="Intermedio">Intermedio</option>
-                                            <option value="Avanzado">Avanzado</option>
-                                            <option value="Experto">Experto</option>
-                                        </select>
-                                        <label asp-for="NivelExperiencia">
-                                            <i class="bi bi-trophy"></i> Nivel de Experiencia
-                                        </label>
-                                        <span asp-validation-for="NivelExperiencia" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="ObjetivoPrincipal" class="form-select">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="Perder peso">Perder peso</option>
-                                            <option value="Ganar músculo">Ganar músculo</option>
-                                            <option value="Tonificar">Tonificar</option>
-                                            <option value="Mantenimiento">Mantenimiento</option>
-                                            <option value="Mejorar resistencia">Mejorar resistencia</option>
-                                            <option value="Mejorar fuerza">Mejorar fuerza</option>
-                                        </select>
-                                        <label asp-for="ObjetivoPrincipal">
-                                            <i class="bi bi-target"></i> Objetivo Principal
-                                        </label>
-                                        <span asp-validation-for="ObjetivoPrincipal" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="DiasEntrenamientoSemana" class="form-select">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="1">1 día por semana</option>
-                                            <option value="2">2 días por semana</option>
-                                            <option value="3">3 días por semana</option>
-                                            <option value="4">4 días por semana</option>
-                                            <option value="5">5 días por semana</option>
-                                            <option value="6">6 días por semana</option>
-                                            <option value="7">7 días por semana</option>
-                                        </select>
-                                        <label asp-for="DiasEntrenamientoSemana">
-                                            <i class="bi bi-calendar-week"></i> Frecuencia Semanal
-                                        </label>
-                                        <span asp-validation-for="DiasEntrenamientoSemana" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-floating mb-3">
-                                        <select asp-for="DuracionPreferida" class="form-select">
-                                            <option value="">Seleccionar...</option>
-                                            <option value="15">15 minutos</option>
-                                            <option value="30">30 minutos</option>
-                                            <option value="45">45 minutos</option>
-                                            <option value="60">1 hora</option>
-                                            <option value="90">1.5 horas</option>
-                                            <option value="120">2 horas</option>
-                                        </select>
-                                        <label asp-for="DuracionPreferida">
-                                            <i class="bi bi-clock"></i> Duración Preferida
-                                        </label>
-                                        <span asp-validation-for="DuracionPreferida" class="text-danger small"></span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label asp-for="LesionesLimitaciones" class="form-label">
-                                    <i class="bi bi-bandaid"></i> Lesiones o Limitaciones
-                                </label>
-                                <textarea asp-for="LesionesLimitaciones" class="form-control" rows="3"
-                                          placeholder="Describe cualquier lesión, limitación física o condición médica que debamos considerar..."></textarea>
-                                <span asp-validation-for="LesionesLimitaciones" class="text-danger small"></span>
-                                <small class="form-text text-muted">
-                                    Esta información nos ayuda a crear rutinas más seguras y efectivas para ti.
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Botones de Acción -->
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-check-circle"></i>
-                                Guardar Cambios
-                            </button>
-                            <a href="/" class="btn btn-outline-secondary btn-lg">
-                                <i class="bi bi-arrow-left"></i>
-                                Volver al Inicio
-                            </a>
-                        </div>
-                    </form>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="section-card">
+            <h3><i class="bi bi-camera"></i> Imagen de Perfil</h3>
+            <div class="card-content">
+
+                <div class="image-upload-wrapper">
+
+                    <div class="image-preview" id="imagePreview">
+                        <img src="" alt="Vista previa" id="previewImage" style="display: none;" />
+                        <i class="bi bi-person-bounding-box preview-icon" id="previewIcon"></i>
+                    </div>
+
+                    <div class="file-input-wrapper floating-group">
+                        <label asp-for="ImagenPerfil">Reemplazar imagen</label>
+                        <input asp-for="ImagenPerfil" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif,.webp" id="fileUpload" />
+                        <span class="form-text">Max 5MB. Formatos: JPG, PNG, GIF, WebP.</span>
+                        <span class="text-danger small" asp-validation-for="ImagenPerfil"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="bi bi-rulers"></i> Métricas Físicas</h3>
+            <div class="card-content">
+                <div class="form-grid cols-3">
+                    <div class="floating-group">
+                        <label asp-for="Altura">Altura (cm)</label>
+                        <div class="slider-wrapper">
+                            <input asp-for="Altura" type="range" min="100" max="250" step="1" />
+                            <div class="slider-value" id="valAltura"></div>
+                        </div>
+                        <span class="text-danger small" asp-validation-for="Altura"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="PesoActual">Peso Actual (kg)</label>
+                        <div class="slider-wrapper">
+                            <input asp-for="PesoActual" type="range" min="30" max="250" step="0.5" />
+                            <div class="slider-value" id="valPesoActual"></div>
+                        </div>
+                        <span class="text-danger small" asp-validation-for="PesoActual"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="PesoObjetivo">Peso Objetivo (kg)</label>
+                        <div class="slider-wrapper">
+                            <input asp-for="PesoObjetivo" type="range" min="30" max="250" step="0.5" />
+                            <div class="slider-value" id="valPesoObj"></div>
+                        </div>
+                        <span class="text-danger small" asp-validation-for="PesoObjetivo"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="bi bi-flag"></i> Objetivos y Preferencias</h3>
+            <div class="card-content">
+                <div class="form-grid cols-2">
+                    <div class="floating-group">
+                        <label asp-for="NivelExperiencia"></label>
+                        <select asp-for="NivelExperiencia" class="form-select">
+                            <option value="">Seleccione...</option>
+                            @foreach (var nivel in nivelesExperiencia)
+                            {
+                                <option>@nivel</option>
+                            }
+                        </select>
+                        <span class="text-danger small" asp-validation-for="NivelExperiencia"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="ObjetivoPrincipal"></label>
+                        <select asp-for="ObjetivoPrincipal" class="form-select">
+                            <option value="">Seleccione...</option>
+                            @foreach (var objetivo in objetivos)
+                            {
+                                <option>@objetivo</option>
+                            }
+                        </select>
+                        <span class="text-danger small" asp-validation-for="ObjetivoPrincipal"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="DiasEntrenamientoSemana">Días por Semana</label>
+                        <div class="slider-wrapper">
+                            <input asp-for="DiasEntrenamientoSemana" type="range" min="1" max="7" step="1" />
+                            <div class="slider-value" id="valDias"></div>
+                        </div>
+                        <span class="text-danger small" asp-validation-for="DiasEntrenamientoSemana"></span>
+                    </div>
+                    <div class="floating-group">
+                        <label asp-for="DuracionPreferida">Duración (min)</label>
+                        <div class="slider-wrapper">
+                            <input asp-for="DuracionPreferida" type="range" min="15" max="120" step="5" />
+                            <div class="slider-value" id="valDuracion"></div>
+                        </div>
+                        <span class="text-danger small" asp-validation-for="DuracionPreferida"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <h3><i class="bi bi-info-circle"></i> Información Adicional</h3>
+            <div class="card-content">
+                <div class="floating-group">
+                    <label asp-for="LesionesLimitaciones"></label>
+                    <textarea asp-for="LesionesLimitaciones" class="form-control" rows="3"></textarea>
+                    <span class="form-text">Indica cualquier condición que debamos considerar.</span>
+                    <span class="text-danger small" asp-validation-for="LesionesLimitaciones"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button type="submit" class="btn btn-primary save-btn">
+                <i class="bi bi-save"></i> Guardar Cambios
+            </button>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">
+                <i class="bi bi-house"></i> Ir al Inicio
+            </a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Preview de imagen
-            const imageUpload = document.getElementById('imageUpload');
-            if (imageUpload) {
-                imageUpload.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        console.log('Archivo seleccionado:', file.name, file.size, file.type);
-
-                        // Validar tipo de archivo
-                        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
-                        if (!validTypes.includes(file.type)) {
-                            alert('Por favor, selecciona un archivo de imagen válido (JPG, PNG, GIF, BMP, WEBP)');
-                            return;
-                        }
-
-                        // Validar tamaño (5MB)
-                        if (file.size > 5 * 1024 * 1024) {
-                            alert('La imagen no puede ser mayor a 5MB');
-                            return;
-                        }
-
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const currentImage = document.getElementById('currentProfileImage');
-                            const placeholder = document.getElementById('profilePlaceholder');
-
-                            if (currentImage) {
-                                // Si ya hay una imagen, actualizar su src
-                                currentImage.src = e.target.result;
-                            } else if (placeholder) {
-                                // Si hay placeholder, reemplazarlo con imagen
-                                const img = document.createElement('img');
-                                img.src = e.target.result;
-                                img.alt = 'Vista previa';
-                                img.className = 'profile-image';
-                                img.id = 'currentProfileImage';
-                                placeholder.parentNode.replaceChild(img, placeholder);
-                            }
-
-                            console.log('Preview de imagen actualizado');
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            }
-        });
-
-        // Calcular IMC en tiempo real
-        function calcularIMC() {
-            const peso = parseFloat(document.querySelector('input[name="PesoActual"]').value);
-            const altura = parseFloat(document.querySelector('input[name="Altura"]').value);
-
-            if (peso && altura && altura > 0) {
-                const alturaMetros = altura / 100;
-                const imc = (peso / (alturaMetros * alturaMetros)).toFixed(2);
-
-                let categoria = '';
-                let colorClass = '';
-
-                if (imc < 18.5) {
-                    categoria = 'Bajo peso';
-                    colorClass = 'warning';
-                } else if (imc < 25) {
-                    categoria = 'Peso normal';
-                    colorClass = 'success';
-                } else if (imc < 30) {
-                    categoria = 'Sobrepeso';
-                    colorClass = 'warning';
-                } else {
-                    categoria = 'Obesidad';
-                    colorClass = 'danger';
-                }
-
-                // Actualizar la visualización del IMC si existe
-                const imcDisplay = document.querySelector('.imc-display');
-                if (imcDisplay) {
-                    imcDisplay.innerHTML = `
-                        <div class="imc-info">
-                            <span class="imc-label">Tu IMC:</span>
-                            <span class="badge bg-${colorClass} fs-6">
-                                ${imc} - ${categoria}
-                            </span>
-                        </div>
-                    `;
-                }
-            }
+        // Sincroniza y muestra valores actuales de sliders
+        function syncValue(selector, targetId, suffix = "") {
+            const el = document.querySelector(selector);
+            const box = document.getElementById(targetId);
+            if (!el || !box) return;
+            const update = () => box.textContent = el.value + suffix;
+            el.addEventListener('input', update);
+            update(); // Cargar valor inicial
         }
 
-        // Event listeners para cálculo de IMC
-        document.addEventListener('DOMContentLoaded', function() {
-            const pesoInput = document.querySelector('input[name="PesoActual"]');
-            const alturaInput = document.querySelector('input[name="Altura"]');
+        // Vista previa de imagen de perfil
+        function setupImagePreview() {
+            const fileInput = document.getElementById('fileUpload');
+            const previewImg = document.getElementById('previewImage');
+            const previewIcon = document.getElementById('previewIcon');
 
-            if (pesoInput) pesoInput.addEventListener('input', calcularIMC);
-            if (alturaInput) alturaInput.addEventListener('input', calcularIMC);
+            if (!fileInput || !previewImg || !previewIcon) return;
 
-            // Calcular al cargar si ya hay valores
-            calcularIMC();
-        });
-
-        // Validación del formulario
-        document.querySelector('.perfil-form').addEventListener('submit', function(e) {
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            if (submitBtn) {
-                submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
-                submitBtn.disabled = true;
-            }
-        });
-
-        // Auto-dismiss alerts
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                if (bootstrap && bootstrap.Alert) {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
+            fileInput.addEventListener('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                        previewIcon.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
-        }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar sliders
+            syncValue('input[name="Altura"]', 'valAltura', ' cm');
+            syncValue('input[name="PesoActual"]', 'valPesoActual', ' kg');
+            syncValue('input[name="PesoObjetivo"]', 'valPesoObj', ' kg');
+            syncValue('input[name="DiasEntrenamientoSemana"]', 'valDias', ' días');
+            syncValue('input[name="DuracionPreferida"]', 'valDuracion', ' min');
+
+            // Inicializar vista previa de imagen
+            setupImagePreview();
+        });
     </script>
 }

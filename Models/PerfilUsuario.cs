@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PredatorsGym.Models
 {
-    public class PerfilUsuario
+    public class PerfilUsuario : IValidatableObject
     {
         [Key]
         public int Id { get; set; }
@@ -18,7 +19,9 @@ namespace PredatorsGym.Models
         [StringLength(100)]
         public string? Apellidos { get; set; }
 
-        [Phone]
+        // Teléfono: solo dígitos, hasta 15 (opcional)
+        [StringLength(15, ErrorMessage = "El teléfono no puede superar 15 dígitos.")]
+        [RegularExpression(@"^\d{0,15}$", ErrorMessage = "El teléfono solo puede contener dígitos (máx. 15).")]
         public string? Telefono { get; set; }
 
         public DateTime? FechaNacimiento { get; set; }
@@ -27,12 +30,15 @@ namespace PredatorsGym.Models
         public string? Genero { get; set; }
 
         [Column(TypeName = "decimal(5,2)")]
+        [Range(80, 300, ErrorMessage = "La altura debe estar entre 80 y 300 cm.")]
         public decimal? Altura { get; set; }
 
         [Column(TypeName = "decimal(5,2)")]
+        [Range(20, 500, ErrorMessage = "El peso actual debe estar entre 20 y 500 kg.")]
         public decimal? PesoActual { get; set; }
 
         [Column(TypeName = "decimal(5,2)")]
+        [Range(20, 500, ErrorMessage = "El peso objetivo debe estar entre 20 y 500 kg.")]
         public decimal? PesoObjetivo { get; set; }
 
         [StringLength(20)]
@@ -54,16 +60,12 @@ namespace PredatorsGym.Models
         public string? TipoImagen { get; set; }
 
         public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
-
         public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
-
         public DateTime? UltimaActividad { get; set; }
 
-        // NUEVA propiedad (nivel de actividad general: Sedentario, Moderado, Alto, Intensivo, etc.)
         [StringLength(30)]
         public string? NivelActividad { get; set; }
 
-        // Propiedades calculadas (no mapeadas)
         [NotMapped]
         public int? Edad
         {
@@ -86,6 +88,20 @@ namespace PredatorsGym.Models
                 var hM = Altura.Value / 100m;
                 var valor = PesoActual.Value / (hM * hM);
                 return Math.Round(valor, 2);
+            }
+        }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (FechaNacimiento.HasValue)
+            {
+                var edad = Edad;
+                if (edad.HasValue && (edad < 10 || edad > 120))
+                {
+                    yield return new ValidationResult(
+                        "La edad calculada debe estar entre 10 y 120 años.",
+                        new[] { nameof(FechaNacimiento) });
+                }
             }
         }
     }
