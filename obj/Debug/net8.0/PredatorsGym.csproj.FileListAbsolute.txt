@@ -3165,8 +3165,8 @@ F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 6\PredatorsGym\obj\Debug\net8.0\PredatorsGy
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 6\PredatorsGym\obj\Debug\net8.0\ref\PredatorsGym.dll
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\appsettings.Development.json
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\appsettings.json
-F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.staticwebassets.endpoints.json
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.staticwebassets.runtime.json
+F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.staticwebassets.endpoints.json
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.exe
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.deps.json
 F:\BACKUP CALIDAD DE SOFTWARE\SEMANA 11\PAYMENT\PredatorsGym\bin\Debug\net8.0\PredatorsGym.runtimeconfig.json
