@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PredatorsGym")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73dc0cbdc2699a8223ebfb23cb62dae08a302d5d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+528f3a2ed784956e6cf57645a893487c760606bc")]
 [assembly: System.Reflection.AssemblyProductAttribute("PredatorsGym")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PredatorsGym")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

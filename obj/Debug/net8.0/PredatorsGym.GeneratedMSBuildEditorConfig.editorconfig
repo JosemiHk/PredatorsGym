@@ -48,6 +48,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWVtYnJlc2lhXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/BACKUP CALIDAD DE SOFTWARE/SEMANA 11/PAYMENT/PredatorsGym/Views/Nutricion/Consejos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTnV0cmljaW9uXENvbnNlam9zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/BACKUP CALIDAD DE SOFTWARE/SEMANA 11/PAYMENT/PredatorsGym/Views/Rutinas/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -58,6 +62,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [F:/BACKUP CALIDAD DE SOFTWARE/SEMANA 11/PAYMENT/PredatorsGym/Views/Rutinas/RutinaGenerada.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUnV0aW5hc1xSdXRpbmFHZW5lcmFkYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/BACKUP CALIDAD DE SOFTWARE/SEMANA 11/PAYMENT/PredatorsGym/Views/Shared/ConsejosNutricionales.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbnNlam9zTnV0cmljaW9uYWxlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/BACKUP CALIDAD DE SOFTWARE/SEMANA 11/PAYMENT/PredatorsGym/Views/Shared/Error.cshtml]
