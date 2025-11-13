@@ -71,13 +71,6 @@ namespace PredatorsGym.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerarRutina(Rutina model)
         {
-            // Quitar validación innecesaria (se calculan/llenan en backend)
-            ModelState.Remove("UsuarioId");
-            ModelState.Remove("IMC");
-            ModelState.Remove("EstadoIMC");
-            ModelState.Remove("RutinaGenerada");
-            ModelState.Remove("FechaCreacion");
-
             try
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -87,25 +80,18 @@ namespace PredatorsGym.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
-                // Completar datos faltantes desde el perfil ANTES de validar
+                // 1) Completar desde el perfil (género, edad, altura, peso, etc.)
                 await CompletarDesdePerfilAsync(model, user.Id);
 
-                // Revalidar el modelo tras completar datos
-                ModelState.Clear();
-                TryValidateModel(model);
-
-                if (!ModelState.IsValid)
-                {
-                    return View("Create", model);
-                }
-
+                // 2) Asignar campos del servidor ANTES de validar
                 model.UsuarioId = user.Id;
-                model.FechaCreacion = DateTime.Now;
+                model.FechaCreacion = DateTime.UtcNow;
 
-                // Cálculo del IMC y estado
+                // Cálculo del IMC y estado (con datos ya completos)
                 model.IMC = CalcularIMC(model.Peso, model.Altura);
                 model.EstadoIMC = CalcularEstadoIMC(model.IMC);
 
+                // 3) Generar la rutina con Azure OpenAI
                 var prompt = $@"
 Necesito una rutina de entrenamiento personalizada para las siguientes características:
 
@@ -128,16 +114,22 @@ Necesito una rutina de entrenamiento personalizada para las siguientes caracter�
 
 Por favor crea una rutina completa y personalizada considerando estos factores.
 ";
-
                 _logger.LogInformation("Generando rutina para usuario {UserId} con Azure OpenAI", user.Id);
 
-                // Llamada a Azure OpenAI
-                model.RutinaGenerada = await _azureOpenAIService.GenerarRutinaPersonalizadaAsync(prompt);
-
-                if (string.IsNullOrEmpty(model.RutinaGenerada))
+                var generado = await _azureOpenAIService.GenerarRutinaPersonalizadaAsync(prompt);
+                if (string.IsNullOrWhiteSpace(generado))
                 {
                     _logger.LogError("RutinaGenerada está vacía después de llamada a Azure OpenAI");
                     ModelState.AddModelError("", "No se pudo generar la rutina. Intenta nuevamente.");
+                    // Nota: devolvemos la vista con los datos ya precargados
+                    return View("Create", model);
+                }
+                model.RutinaGenerada = generado;
+
+                // 4) Validar TODO una vez que ya tenemos UsuarioId y RutinaGenerada
+                ModelState.Clear();
+                if (!TryValidateModel(model))
+                {
                     return View("Create", model);
                 }
 
