@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PredatorsGym.Models
@@ -47,17 +48,20 @@ namespace PredatorsGym.Models
         [StringLength(500)]
         public string? LesionesLimitaciones { get; set; }
 
-        // Columna para almacenar la imagen como bytes (BLOB)
         public byte[]? ImagenPerfil { get; set; }
 
         [StringLength(10)]
-        public string? TipoImagen { get; set; } // jpg, png, etc.
+        public string? TipoImagen { get; set; }
 
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
-        public DateTime FechaActualizacion { get; set; } = DateTime.Now;
+        public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
 
         public DateTime? UltimaActividad { get; set; }
+
+        // NUEVA propiedad (nivel de actividad general: Sedentario, Moderado, Alto, Intensivo, etc.)
+        [StringLength(30)]
+        public string? NivelActividad { get; set; }
 
         // Propiedades calculadas (no mapeadas)
         [NotMapped]
@@ -65,14 +69,11 @@ namespace PredatorsGym.Models
         {
             get
             {
-                if (FechaNacimiento.HasValue)
-                {
-                    var hoy = DateTime.Today;
-                    var edad = hoy.Year - FechaNacimiento.Value.Year;
-                    if (FechaNacimiento.Value.Date > hoy.AddYears(-edad)) edad--;
-                    return edad;
-                }
-                return null;
+                if (!FechaNacimiento.HasValue) return null;
+                var hoy = DateTime.Today;
+                var edad = hoy.Year - FechaNacimiento.Value.Year;
+                if (FechaNacimiento.Value.Date > hoy.AddYears(-edad)) edad--;
+                return edad;
             }
         }
 
@@ -81,46 +82,10 @@ namespace PredatorsGym.Models
         {
             get
             {
-                if (PesoActual.HasValue && Altura.HasValue && Altura > 0)
-                {
-                    var alturaMetros = Altura.Value / 100;
-                    return Math.Round(PesoActual.Value / (alturaMetros * alturaMetros), 2);
-                }
-                return null;
-            }
-        }
-
-        [NotMapped]
-        public string CategoriaIMC
-        {
-            get
-            {
-                if (IMC.HasValue)
-                {
-                    var imc = IMC.Value;
-                    if (imc < 18.5m) return "Bajo peso";
-                    if (imc < 25m) return "Peso normal";
-                    if (imc < 30m) return "Sobrepeso";
-                    return "Obesidad";
-                }
-                return "";
-            }
-        }
-
-        [NotMapped]
-        public string ColorIMC
-        {
-            get
-            {
-                if (IMC.HasValue)
-                {
-                    var imc = IMC.Value;
-                    if (imc < 18.5m) return "warning";
-                    if (imc < 25m) return "success";
-                    if (imc < 30m) return "warning";
-                    return "danger";
-                }
-                return "secondary";
+                if (!PesoActual.HasValue || !Altura.HasValue || PesoActual <= 0 || Altura <= 0) return null;
+                var hM = Altura.Value / 100m;
+                var valor = PesoActual.Value / (hM * hM);
+                return Math.Round(valor, 2);
             }
         }
     }
