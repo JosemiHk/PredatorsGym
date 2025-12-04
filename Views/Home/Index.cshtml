@@ -6,6 +6,241 @@
     ViewData["Title"] = "Inicio";
 }
 
+@section Styles {
+    <style>
+        /* Ajustes generales mobile-first */
+        .modern-hero {
+            position: relative;
+            overflow: hidden;
+            padding: 3rem 0 2rem;
+        }
+
+            .modern-hero .container {
+                max-width: 100%;
+            }
+
+        .hero-title {
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            line-height: 1.6;
+        }
+
+        .hero-actions .btn {
+            position: relative;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: .75rem;
+            margin: 1.25rem 0 1.75rem;
+        }
+
+            .hero-stats .stat-item {
+                background: rgba(255,255,255,0.08);
+                border: 1px solid rgba(255,255,255,0.12);
+                border-radius: .75rem;
+                padding: .6rem .7rem;
+                text-align: center;
+            }
+
+            .hero-stats .stat-number {
+                display: block;
+                font-weight: 700;
+            }
+
+            .hero-stats .stat-label {
+                display: block;
+                opacity: .9;
+                font-size: .85rem;
+            }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .feature-card-modern {
+            border-radius: 1rem;
+            padding: 1rem;
+            backdrop-filter: saturate(120%) blur(6px);
+            min-height: auto;
+        }
+
+        .feature-icon-modern {
+            font-size: 1.6rem;
+        }
+
+        /* Visual del héroe: optimización móvil */
+        .hero-visual .visual-container {
+            position: relative;
+            min-height: 320px;
+        }
+
+        .floating-card {
+            backdrop-filter: blur(6px);
+        }
+
+        /* CTA */
+        .modern-cta .cta-content {
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        /* Breakpoints */
+        @@media (max-width: 992px) {
+            .row.align-items-center.min-vh-100
+
+        {
+            min-height: auto !important;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .modern-hero
+
+        {
+            padding: 2rem 0 1rem;
+        }
+
+        .hero-title {
+            font-size: clamp(1.8rem, 5.5vw, 2.2rem);
+        }
+
+        .hero-subtitle {
+            font-size: .95rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            font-size: .85rem;
+            padding: .35rem .6rem;
+            border-radius: .75rem;
+        }
+
+        .hero-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: .75rem;
+        }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+
+        .hero-visual {
+            margin-top: 1.25rem;
+        }
+        /* Reduce complejidad visual en móvil */
+        .floating-card.card-1,
+        .floating-card.card-2,
+        .floating-card.card-3 {
+            transform: none !important;
+            position: static !important;
+            display: inline-flex;
+            margin-right: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        .hero-phone {
+            transform: none !important;
+            margin-top: .5rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            gap: .9rem;
+        }
+
+        .feature-card-modern {
+            padding: 1rem;
+        }
+
+        .feature-title-modern {
+            font-size: 1.05rem;
+            margin-bottom: .35rem;
+        }
+
+        .feature-description-modern {
+            font-size: .95rem;
+            margin-bottom: .5rem;
+        }
+
+        .feature-link {
+            font-size: .9rem;
+        }
+
+        .section-padding {
+            padding: 2rem 0;
+        }
+
+        .section-title {
+            font-size: clamp(1.4rem, 5vw, 1.8rem);
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: .95rem;
+        }
+
+        /* CTA compacta */
+        .modern-cta .cta-title {
+            font-size: clamp(1.3rem, 5vw, 1.6rem);
+        }
+
+        .modern-cta .cta-subtitle {
+            font-size: .95rem;
+        }
+
+        .modern-cta .cta-button {
+            width: 100%;
+            margin-top: .75rem;
+        }
+
+        /* Parallax: desactivar en móvil para performance */
+        .hero-pattern {
+            transform: none !important;
+        }
+
+        }
+
+        @@media (max-width: 420px) {
+            .hero-stats
+
+        {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .feature-icon-modern {
+            font-size: 1.4rem;
+        }
+
+        .feature-card-modern {
+            padding: .85rem;
+        }
+
+        }
+
+        /* Preferencia del usuario: reduce motion */
+        @@media (prefers-reduced-motion: reduce) {
+            .animate-on-scroll, .btn-shine, .hero-pattern
+
+        {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        }
+    </style>
+}
+
 <!--  HERO SECTION MODERNA -->
 <section class="modern-hero">
     <div class="hero-background">
@@ -15,7 +250,7 @@
 
     <div class="container">
         <div class="row align-items-center min-vh-100">
-            <div class="col-lg-6">
+            <div class="col-lg-6 col-12">
                 <div class="hero-content animate-on-scroll">
                     <div class="hero-badge">
                         <i class="bi bi-stars"></i>
@@ -35,15 +270,15 @@
 
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <span class="stat-number">10K+</span>
+                            <span class="stat-number" data-target="10000">10K+</span>
                             <span class="stat-label">Usuarios Activos</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">95%</span>
+                            <span class="stat-number" data-target="95">95%</span>
                             <span class="stat-label">Ven Resultados</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">4.9</span>
+                            <span class="stat-number" data-target="49">4.9</span>
                             <span class="stat-label">Rating</span>
                         </div>
                     </div>
@@ -77,7 +312,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-6">
+            <div class="col-lg-6 col-12">
                 <div class="hero-visual animate-on-scroll">
                     <div class="visual-container">
                         <div class="floating-card card-1">
@@ -226,14 +461,14 @@
         <div class="container">
             <div class="cta-content animate-on-scroll">
                 <div class="row align-items-center">
-                    <div class="col-lg-8">
+                    <div class="col-lg-8 col-12">
                         <h2 class="cta-title">¿Listo para tu transformación?</h2>
                         <p class="cta-subtitle">
                             Únete a miles de usuarios que ya están viendo resultados increíbles.
                             Comienza gratis hoy mismo.
                         </p>
                     </div>
-                    <div class="col-lg-4 text-lg-end">
+                    <div class="col-lg-4 col-12 text-lg-end">
                         <a href="/Account/Register" class="btn btn-primary btn-lg cta-button">
                             <i class="bi bi-rocket-takeoff"></i>
                             <span>Comenzar Ahora</span>
@@ -248,7 +483,7 @@
 
 @section Scripts {
     <script>
-        // Parallax effect for hero
+        // Parallax effect for hero (se desactiva en móviles con media query)
         window.addEventListener('scroll', function() {
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.hero-pattern');
@@ -261,17 +496,18 @@
         function animateCounters() {
             const counters = document.querySelectorAll('.stat-number');
             counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target') || counter.textContent);
-                const increment = target / 200;
+                const targetAttr = counter.getAttribute('data-target');
+                const target = targetAttr ? parseInt(targetAttr) : parseInt(counter.textContent) || 0;
+                const increment = Math.max(1, Math.floor(target / 200));
                 let current = 0;
 
                 const updateCounter = () => {
                     if (current < target) {
                         current += increment;
-                        counter.textContent = Math.ceil(current);
+                        counter.textContent = current >= 1000 ? `${Math.ceil(current/1000)}K+` : Math.ceil(current);
                         requestAnimationFrame(updateCounter);
                     } else {
-                        counter.textContent = target;
+                        counter.textContent = target >= 1000 ? `${Math.ceil(target/1000)}K+` : target;
                     }
                 };
 
