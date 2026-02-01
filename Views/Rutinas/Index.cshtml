@@ -1,25 +1,345 @@
-﻿@model Rutina
+﻿@model PredatorsGym.Models.Rutina
 @{
-    ViewData["Title"] = "Mi rutina";
+    ViewData["Title"] = "Mis Rutinas";
     Layout = "_Layout";
 }
 
-<h2>Mi rutina de entrenamiento</h2>
+@section Styles {
+    <style>
+        .rutinas-container {
+            padding: 2rem 0;
+        }
 
-@if (Model == null)
-{
-    <div class="alert alert-info">
-        No tienes una rutina generada aún.
-    </div>
-    <a href="/Rutinas/Create" class="btn btn-primary">Generar rutina</a>
+        .routine-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+            .routine-card:hover {
+                transform: translateY(-4px);
+                box-shadow: var(--shadow-lg);
+            }
+
+        .routine-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+        }
+
+        .routine-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--gray-50);
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-600);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
 }
-else
-{
-    <div class="alert alert-success">
-        Rutina generada el: @Model.FechaCreacion.ToString("dd/MM/yyyy")
+
+<div class="rutinas-container">
+    <div class="container">
+        <!-- 🏠 BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")" class="text-decoration-none">
+                        <i class="bi bi-house"></i> Inicio
+                    </a>
+                </li>
+                <li class="breadcrumb-item active">
+                    <i class="bi bi-lightning-charge"></i> Mis Rutinas
+                </li>
+            </ol>
+        </nav>
+
+        <!-- 📋 HEADER -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-1">
+                    <i class="bi bi-lightning-charge text-primary"></i>
+                    Mis Rutinas
+                </h1>
+                <p class="text-muted mb-0">Gestiona y ejecuta tus rutinas personalizadas</p>
+            </div>
+            <a href="@Url.Action("Create")" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i>
+                Crear Nueva Rutina
+            </a>
+        </div>
+
+        @if (Model != null)
+        {
+            <!-- ✅ RUTINA ENCONTRADA -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="routine-card">
+                        <!-- 🎯 HEADER DE RUTINA -->
+                        <div class="routine-header">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h3 class="mb-2">
+                                        <i class="bi bi-star-fill"></i>
+                                        Tu Rutina Personalizada
+                                    </h3>
+                                    <p class="mb-0 opacity-90">
+                                        Creada el @Model.FechaCreacion.ToString("dd/MM/yyyy 'a las' HH:mm")
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    @{
+                                        var badgeClass = Model.Estado switch
+                                        {
+                                            EstadoRutina.Creada => "badge bg-light text-dark",
+                                            EstadoRutina.EnProgreso => "badge bg-warning text-dark",
+                                            EstadoRutina.Completada => "badge bg-success",
+                                            EstadoRutina.Pausada => "badge bg-secondary",
+                                            _ => "badge bg-light text-dark"
+                                        };
+
+                                        var estadoIcon = Model.Estado switch
+                                        {
+                                            EstadoRutina.Creada => "bi-plus-circle",
+                                            EstadoRutina.EnProgreso => "bi-play-circle",
+                                            EstadoRutina.Completada => "bi-check-circle",
+                                            EstadoRutina.Pausada => "bi-pause-circle",
+                                            _ => "bi-circle"
+                                        };
+                                    }
+                                    <span class="@badgeClass">
+                                        <i class="bi @estadoIcon"></i>
+                                        @Model.Estado.ToString()
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 📊 ESTADÍSTICAS -->
+                        <div class="routine-stats">
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.IMC.ToString("F1")</div>
+                                <div class="stat-label">IMC</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.Objetivo</div>
+                                <div class="stat-label">Objetivo</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.Experiencia</div>
+                                <div class="stat-label">Nivel</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value">@Model.DiasEntrenamiento</div>
+                                <div class="stat-label">Días/Semana</div>
+                            </div>
+                        </div>
+
+                        <!-- 🎮 ACCIONES PRINCIPALES -->
+                        <div class="p-3 border-top">
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })"
+                                   class="btn btn-primary flex-fill">
+                                    <i class="bi bi-play-circle"></i>
+                                    Ver y Entrenar
+                                </a>
+
+                                @if (Model.Estado == EstadoRutina.EnProgreso)
+                                {
+                                    <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })"
+                                       class="btn btn-warning flex-fill">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Continuar Entrenamiento
+                                    </a>
+                                }
+
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detailsModal">
+                                    <i class="bi bi-eye"></i>
+                                    Detalles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 📈 SIDEBAR CON INFORMACIÓN -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="bi bi-graph-up"></i>
+                                Progreso
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Peso Actual</span>
+                                    <strong>@Model.Peso kg</strong>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Peso Objetivo</span>
+                                    <strong>@Model.PesoObjetivo kg</strong>
+                                </div>
+                                <div class="progress mt-2">
+                                    @{
+                                        var progreso = Math.Abs(Model.PesoObjetivo - Model.Peso) > 0
+                                        ? Math.Min(100, (Math.Abs(Model.Peso - Model.PesoObjetivo) / Math.Abs(Model.Peso - Model.PesoObjetivo) * 100))
+                                        : 100;
+                                    }
+                                    <div class="progress-bar" style="width: @progreso%"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Estado IMC</h6>
+                                <span class="badge bg-info">@Model.EstadoIMC</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <h6>Configuración</h6>
+                                <ul class="list-unstyled mb-0">
+                                    <li><i class="bi bi-geo-alt text-muted"></i> @Model.LugarEntrenamiento</li>
+                                    <li>
+                                        <i class="bi bi-tools text-muted"></i>
+                                        @(Model.TieneImplementosBasicos ? "Con implementos" : "Solo peso corporal")
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🎯 ACCIONES RÁPIDAS -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="bi bi-lightning"></i>
+                                Acciones Rápidas
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Create")" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-plus"></i>
+                                    Nueva Rutina
+                                </a>
+                                <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-play"></i>
+                                    Entrenar Ahora
+                                </a>
+                                <button type="button" class="btn btn-outline-info btn-sm">
+                                    <i class="bi bi-share"></i>
+                                    Compartir Rutina
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 📋 MODAL DE DETALLES -->
+            <div class="modal fade" id="detailsModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="bi bi-file-text"></i>
+                                Detalles de la Rutina
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            @if (!string.IsNullOrEmpty(Model.RutinaGenerada))
+                            {
+                                <div class="bg-light p-3 rounded">
+                                    <pre class="mb-0">@Model.RutinaGenerada</pre>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    No hay contenido de rutina disponible.
+                                </div>
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <a href="@Url.Action("RutinaGenerada", new { id = Model.Id })" class="btn btn-primary">
+                                <i class="bi bi-play"></i>
+                                Entrenar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- ❌ ESTADO VACÍO -->
+            <div class="empty-state">
+                <div class="empty-icon">🏋️</div>
+                <h3>¡Aún no tienes rutinas!</h3>
+                <p class="lead mb-4">
+                    Crea tu primera rutina personalizada con inteligencia artificial.<br>
+                    Te ayudaremos a diseñar el plan perfecto para tus objetivos.
+                </p>
+                <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Crear Mi Primera Rutina
+                </a>
+            </div>
+        }
     </div>
+</div>
 
-    <pre>@Model.RutinaGenerada</pre>
-
-    <a href="/Rutinas/Create" class="btn btn-warning mt-2">Reiniciar rutina</a>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Actualizar contador de progreso
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                    bar.style.transition = 'width 1s ease-in-out';
+                }, 100);
+            });
+        });
+    </script>
 }

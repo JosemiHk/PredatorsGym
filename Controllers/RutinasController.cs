@@ -13,96 +13,281 @@ namespace PredatorsGym.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ICohereService _cohereService;
+        private readonly IAzureOpenAIService _azureOpenAIService;
+        private readonly ILogger<RutinasController> _logger;
 
         public RutinasController(ApplicationDbContext context,
                                  UserManager<IdentityUser> userManager,
-                                 ICohereService cohereService)
+                                 IAzureOpenAIService azureOpenAIService,
+                                 ILogger<RutinasController> logger)
         {
             _context = context;
             _userManager = userManager;
-            _cohereService = cohereService;
+            _azureOpenAIService = azureOpenAIService;
+            _logger = logger;
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            var perfil = await _context.PerfilesUsuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UsuarioId == user.Id);
+
+            var model = new Rutina
+            {
+                UsuarioId = user.Id
+            };
+
+            if (perfil != null)
+            {
+                // Prefill desde perfil
+                if (!string.IsNullOrWhiteSpace(perfil.Genero)) model.Genero = perfil.Genero;
+                var edad = CalcularEdad(perfil.FechaNacimiento);
+                if (edad.HasValue) model.Edad = edad.Value;
+
+                if (perfil.Altura.HasValue) model.Altura = (double)perfil.Altura.Value;
+                if (perfil.PesoActual.HasValue) model.Peso = (double)perfil.PesoActual.Value;
+                if (perfil.PesoObjetivo.HasValue) model.PesoObjetivo = (double)perfil.PesoObjetivo.Value;
+
+                if (!string.IsNullOrWhiteSpace(perfil.NivelExperiencia)) model.Experiencia = perfil.NivelExperiencia;
+                if (!string.IsNullOrWhiteSpace(perfil.ObjetivoPrincipal)) model.Objetivo = perfil.ObjetivoPrincipal;
+
+                if (perfil.DiasEntrenamientoSemana.HasValue)
+                    model.DiasEntrenamiento = perfil.DiasEntrenamientoSemana.Value.ToString();
+
+                // Opcionales/por defecto (si no existe en perfil)
+                if (string.IsNullOrWhiteSpace(model.LugarEntrenamiento))
+                    model.LugarEntrenamiento = "Casa";
+            }
+
+            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GenerarRutina(Rutina model)
         {
-            // Quitar validación innecesaria
-            ModelState.Remove("UsuarioId");
-            ModelState.Remove("IMC");
-            ModelState.Remove("EstadoIMC");
-            ModelState.Remove("RutinaGenerada");
-            ModelState.Remove("FechaCreacion");
-
-            if (!ModelState.IsValid)
+            try
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogError("Usuario no encontrado en GenerarRutina");
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // 1) Completar desde el perfil (género, edad, altura, peso, etc.)
+                await CompletarDesdePerfilAsync(model, user.Id);
+
+                // 2) Asignar campos del servidor ANTES de validar
+                model.UsuarioId = user.Id;
+                model.FechaCreacion = DateTime.UtcNow;
+
+                // Cálculo del IMC y estado (con datos ya completos)
+                model.IMC = CalcularIMC(model.Peso, model.Altura);
+                model.EstadoIMC = CalcularEstadoIMC(model.IMC);
+
+                // 3) Generar la rutina con Azure OpenAI
+                var prompt = $@"
+Necesito una rutina de entrenamiento personalizada para las siguientes características:
+
+📊 DATOS PERSONALES:
+- Edad: {model.Edad} años
+- Género: {model.Genero}
+- Peso actual: {model.Peso} kg
+- Altura: {model.Altura} cm
+- IMC: {model.IMC:F1} ({model.EstadoIMC})
+- Peso objetivo: {model.PesoObjetivo} kg
+
+🎯 OBJETIVOS Y EXPERIENCIA:
+- Objetivo principal: {model.Objetivo}
+- Nivel de experiencia: {model.Experiencia}
+- Días de entrenamiento semanales: {model.DiasEntrenamiento}
+
+🏋️ CONDICIONES DE ENTRENAMIENTO:
+- Lugar de entrenamiento: {model.LugarEntrenamiento}
+- Implementos básicos disponibles: {(model.TieneImplementosBasicos ? "Sí (mancuernas, bandas, etc.)" : "No, solo peso corporal")}
+
+Por favor crea una rutina completa y personalizada considerando estos factores.
+";
+                _logger.LogInformation("Generando rutina para usuario {UserId} con Azure OpenAI", user.Id);
+
+                var generado = await _azureOpenAIService.GenerarRutinaPersonalizadaAsync(prompt);
+                if (string.IsNullOrWhiteSpace(generado))
+                {
+                    _logger.LogError("RutinaGenerada está vacía después de llamada a Azure OpenAI");
+                    ModelState.AddModelError("", "No se pudo generar la rutina. Intenta nuevamente.");
+                    // Nota: devolvemos la vista con los datos ya precargados
+                    return View("Create", model);
+                }
+                model.RutinaGenerada = generado;
+
+                // 4) Validar TODO una vez que ya tenemos UsuarioId y RutinaGenerada
+                ModelState.Clear();
+                if (!TryValidateModel(model))
+                {
+                    return View("Create", model);
+                }
+
+                _context.Rutinas.Add(model);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Rutina generada y guardada exitosamente para usuario {UserId}. ID: {RutinaId}", user.Id, model.Id);
+
+                return RedirectToAction("RutinaGenerada", new { id = model.Id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al generar rutina para usuario");
+                ModelState.AddModelError("", "Hubo un error al generar tu rutina. Por favor intenta nuevamente.");
                 return View("Create", model);
             }
-
-            var user = await _userManager.GetUserAsync(User);
-            model.UsuarioId = user.Id;
-            model.FechaCreacion = DateTime.Now;
-            model.IMC = model.Peso / (model.Altura * model.Altura);
-            model.EstadoIMC = CalcularEstadoIMC(model.IMC);
-
-            var prompt = $@"
-Eres un entrenador personal profesional. Crea una rutina de entrenamiento en español para una persona con las siguientes características:
-
-- Edad: {model.Edad}, Género: {model.Genero}, Experiencia: {model.Experiencia}, Objetivo: {model.Objetivo}, Peso actual: {model.Peso}kg, Peso objetivo: {model.PesoObjetivo}kg, Altura: {model.Altura}m, Lugar: {model.LugarEntrenamiento}, Tiene implementos básicos: {(model.TieneImplementosBasicos ? "Sí" : "No")}
-
-Crea una rutina semanal (7 días) pero resume cada día con:
-
-1. Nombre del día
-2. 1 ejercicio principal (nombre, series, repeticiones)
-3. Breve calentamiento (máx 1 línea)
-4. Estiramiento
-5. Una sola recomendación
-6. Usa emojis si caben
-
-No expliques ni introduzcas demasiado. Solo rutina. Hazlo breve para ahorrar espacio. No te pases de 2048 tokens.
-";
-
-            model.RutinaGenerada = await _cohereService.GenerarTextoAsync(prompt);
-
-            _context.Rutinas.Add(model);
-            await _context.SaveChangesAsync();
-
-            return View("RutinaGenerada", model);
         }
 
         [HttpGet]
         public async Task<IActionResult> RutinaGenerada(int id)
         {
-            var rutina = await _context.Rutinas.FindAsync(id);
-            if (rutina == null) return NotFound();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogError("Usuario no encontrado en RutinaGenerada");
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(rutina);
+                var rutina = await _context.Rutinas
+                    .Include(r => r.Ejercicios)
+                    .FirstOrDefaultAsync(r => r.Id == id && r.UsuarioId == user.Id);
+
+                if (rutina == null)
+                {
+                    _logger.LogWarning("Rutina no encontrada. ID: {RutinaId}, Usuario: {UserId}", id, user.Id);
+                    return NotFound();
+                }
+
+                _logger.LogInformation("Mostrando rutina {RutinaId} para usuario {UserId}. Contenido: {Length} caracteres",
+                    rutina.Id, user.Id, rutina.RutinaGenerada?.Length ?? 0);
+
+                return View(rutina);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al mostrar rutina {RutinaId}", id);
+                return RedirectToAction("Index");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var user = await _userManager.GetUserAsync(User);
-            var rutina = await _context.Rutinas
-                .Where(r => r.UsuarioId == user.Id)
-                .OrderByDescending(r => r.FechaCreacion)
-                .FirstOrDefaultAsync();
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
 
-            return View(rutina);
+                var rutina = await _context.Rutinas
+                    .Where(r => r.UsuarioId == user.Id)
+                    .OrderByDescending(r => r.FechaCreacion)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("Index: Usuario {UserId}, Rutina encontrada: {HasRutina}",
+                    user.Id, rutina != null);
+
+                return View(rutina);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error en Index de rutinas");
+                return View((Rutina?)null);
+            }
+        }
+
+        // Completa campos faltantes del modelo con los valores del perfil del usuario
+        private async Task CompletarDesdePerfilAsync(Rutina model, string userId)
+        {
+            var perfil = await _context.PerfilesUsuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.UsuarioId == userId);
+
+            if (perfil == null) return;
+
+            if (string.IsNullOrWhiteSpace(model.Genero) && !string.IsNullOrWhiteSpace(perfil.Genero))
+                model.Genero = perfil.Genero;
+
+            if (model.Edad <= 0)
+            {
+                var edad = CalcularEdad(perfil.FechaNacimiento);
+                if (edad.HasValue) model.Edad = edad.Value;
+            }
+
+            if (model.Altura <= 0 && perfil.Altura.HasValue)
+                model.Altura = (double)perfil.Altura.Value;
+
+            if (model.Peso <= 0 && perfil.PesoActual.HasValue)
+                model.Peso = (double)perfil.PesoActual.Value;
+
+            if (model.PesoObjetivo <= 0 && perfil.PesoObjetivo.HasValue)
+                model.PesoObjetivo = (double)perfil.PesoObjetivo.Value;
+
+            if (string.IsNullOrWhiteSpace(model.Experiencia) && !string.IsNullOrWhiteSpace(perfil.NivelExperiencia))
+                model.Experiencia = perfil.NivelExperiencia;
+
+            if (string.IsNullOrWhiteSpace(model.Objetivo) && !string.IsNullOrWhiteSpace(perfil.ObjetivoPrincipal))
+                model.Objetivo = perfil.ObjetivoPrincipal;
+
+            if (string.IsNullOrWhiteSpace(model.DiasEntrenamiento) && perfil.DiasEntrenamientoSemana.HasValue)
+                model.DiasEntrenamiento = perfil.DiasEntrenamientoSemana.Value.ToString();
+
+            if (model.DuracionTotalMinutos <= 0 && perfil.DuracionPreferida.HasValue)
+                model.DuracionTotalMinutos = perfil.DuracionPreferida.Value;
+
+            if (string.IsNullOrWhiteSpace(model.LugarEntrenamiento))
+                model.LugarEntrenamiento = "Casa"; // por defecto si no existe en perfil
+
+            // TieneImplementosBasicos: si lo agregas al perfil, mapea aquí.
+        }
+
+        private static int? CalcularEdad(DateTime? fechaNacimiento)
+        {
+            if (!fechaNacimiento.HasValue) return null;
+            var hoy = DateTime.Today;
+            var edad = hoy.Year - fechaNacimiento.Value.Year;
+            if (fechaNacimiento.Value.Date > hoy.AddYears(-edad)) edad--;
+            return edad;
+        }
+
+        private double CalcularIMC(double pesoKg, double alturaCm)
+        {
+            if (pesoKg <= 0 || alturaCm <= 0)
+            {
+                throw new ArgumentException("El peso y la altura deben ser valores positivos");
+            }
+
+            double alturaMetros = alturaCm / 100.0;
+            double imc = pesoKg / (alturaMetros * alturaMetros);
+            return Math.Round(imc, 2);
         }
 
         private string CalcularEstadoIMC(double imc)
         {
-            return imc < 18.5 ? "Bajo peso" :
-                   imc < 25 ? "Normal" :
-                   imc < 30 ? "Sobrepeso" : "Obesidad";
+            return imc switch
+            {
+                < 18.5 => "Bajo peso",
+                >= 18.5 and < 25.0 => "Normal",
+                >= 25.0 and < 30.0 => "Sobrepeso",
+                >= 30.0 and < 35.0 => "Obesidad grado I",
+                >= 35.0 and < 40.0 => "Obesidad grado II",
+                >= 40.0 => "Obesidad grado III",
+                _ => "Valor inválido"
+            };
         }
     }
 }

@@ -1,83 +1,327 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
+@using PredatorsGym.Datos
+@using Microsoft.EntityFrameworkCore
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext DbContext
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Predators GYM</title>
+    <title>@ViewData["Title"] - Predator's</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Predator's - Tu gimnasio digital personalizado con IA" />
+    <meta name="theme-color" content="#EF233C" />
+
+    @await RenderSectionAsync("Styles", required: false)
+
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="apple-touch-icon" href="~/favicon.ico" />
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Accesibilidad (ruta corregida para coincidir con tu archivo) -->
+    <link rel="stylesheet" href="~/css/accesibility.css" asp-append-version="true" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="theme-light">
+    <!-- Skip link para teclado -->
+    <a class="skip-link" href="#mainContent">Saltar al contenido principal</a>
+
+    <!-- Loader -->
+    <div id="loading-spinner" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-icon">🏋️</div>
+            <div class="loading-text">Cargando Predator's...</div>
+        </div>
+    </div>
+
     <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-            <a class="navbar-brand" href="/">Predators GYM</a>
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top modern-navbar" role="navigation" aria-label="Barra de navegación principal">
+            <div class="container">
+                <a class="navbar-brand modern-brand" href="/">
+                    <div class="brand-container">
+                        <span class="brand-icon">🏋️</span>
+                        <span class="brand-text">Predator's</span>
+                        <span class="brand-badge">AI</span>
+                    </div>
+                </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler modern-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Alternar navegación">
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
+                    <span class="toggler-line"></span>
+                </button>
 
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto modern-nav-links">
+                        <li class="nav-item">
+                            <a class="nav-link modern-nav-link" href="/">
+                                <i class="bi bi-house-door"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
 
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Perfil">Perfil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Membresia">Membresía</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Rutinas">Rutinas</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Dietas">Dietas</a>
-                        </li>
-                    }
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Account/Perfil">
+                                    <i class="bi bi-person-circle"></i>
+                                    <span>Perfil</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Rutinas">
+                                    <i class="bi bi-lightning-charge"></i>
+                                    <span>Rutinas</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Dietas">
+                                    <i class="bi bi-heart-pulse"></i>
+                                    <span>Nutrición</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link modern-nav-link" href="/Membresia">
+                                    <i class="bi bi-gem"></i>
+                                    <span>Premium</span>
+                                </a>
+                            </li>
+                        }
 
-                    <li class="nav-item">
-                        <a class="nav-link" href="/Home/PreguntasFrecuentes">Preguntas</a>
-                    </li>
-                </ul>
+                        <li class="nav-item">
+                            <a class="nav-link modern-nav-link" href="/Home/PreguntasFrecuentes">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Ayuda</span>
+                            </a>
+                        </li>
+                    </ul>
 
-                <ul class="navbar-nav ms-auto">
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
-                            </form>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Account" asp-action="Register">Registrarse</a>
-                        </li>
-                    }
-                </ul>
+                    <div class="navbar-nav modern-actions align-items-center">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            var currentUser = await UserManager.GetUserAsync(User);
+                            var perfilUsuario = currentUser != null ?
+                            await DbContext.PerfilesUsuarios.FirstOrDefaultAsync(p => p.UsuarioId == currentUser.Id) : null;
+                            var tieneImagenPerfil = perfilUsuario?.ImagenPerfil != null;
+
+                            <div class="nav-item dropdown user-dropdown">
+                                <a class="nav-link dropdown-toggle user-menu" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <div class="user-avatar">
+                                        @if (tieneImagenPerfil)
+                                        {
+                                            <img src="/Account/ImagenPerfil" alt="Foto de perfil" class="user-profile-image" />
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-person-fill" aria-hidden="true"></i>
+                                            <span class="visually-hidden">Menú de usuario</span>
+                                        }
+                                    </div>
+                                    <span class="user-name">Mi Cuenta</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end modern-dropdown">
+                                    <li><a class="dropdown-item" href="/Account/Perfil"><i class="bi bi-person"></i> Perfil</a></li>
+                                    <li><a class="dropdown-item" href="/Configuracion"><i class="bi bi-gear"></i> Configuración</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline w-100">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger">
+                                                <i class="bi bi-box-arrow-right"></i>
+                                                Cerrar Sesión
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-light btn-sm me-2 modern-btn-outline" asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                Entrar
+                            </a>
+                            <a class="btn btn-primary btn-sm modern-btn-primary" asp-controller="Account" asp-action="Register">
+                                <i class="bi bi-rocket-takeoff"></i>
+                                Comenzar
+                            </a>
+                        }
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
 
-    <main class="container py-4">
+    <!-- Contenido principal -->
+    <main id="mainContent" class="main-content" tabindex="-1">
         @RenderBody()
     </main>
 
-    <footer class="text-center text-muted py-4 border-top">
-        © 2025 - Predators GYM
+    <footer class="modern-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="footer-brand">
+                            <span class="footer-logo">🏋️ Predator's</span>
+                            <p class="footer-tagline">Entrena como un depredador</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <div class="footer-links">
+                            <a href="/Privacy" class="footer-link">Privacidad</a>
+                            <a href="/Terms" class="footer-link">Términos</a>
+                            <a href="/Contact" class="footer-link">Contacto</a>
+                        </div>
+                        <div class="footer-social" aria-label="Redes sociales">
+                            <a href="#" class="social-link"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-youtube"></i></a>
+                            <a href="#" class="social-link"><i class="bi bi-tiktok"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <hr class="footer-divider" />
+                <div class="footer-bottom">
+                    <p class="footer-copyright">© 2025 Predator's. Powered by AI & Passion 🔥</p>
+                </div>
+            </div>
+        </div>
     </footer>
 
+    <!-- FAB de Accesibilidad -->
+    <button id="a11yFab"
+            class="a11y-fab"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="a11yPanel"
+            title="Accesibilidad (Alt+0)"
+            accesskey="0">
+        <i class="bi bi-universal-access-circle"></i>
+    </button>
+
+    <!-- Panel flotante de Accesibilidad -->
+    <div id="a11yPanel" class="a11y-panel" role="dialog" aria-modal="true" aria-labelledby="a11yTitle" hidden>
+        <div class="a11y-panel-header">
+            <h5 id="a11yTitle" class="mb-0">
+                <i class="bi bi-universal-access"></i> Accesibilidad
+            </h5>
+            <button id="a11yClose" class="btn-close" aria-label="Cerrar"></button>
+        </div>
+        <div class="a11y-panel-body">
+            <div class="mb-3">
+                <label class="form-label">Tamaño de fuente</label>
+                <input id="a11yFontRange" type="range" class="form-range" min="0.9" max="1.6" step="0.05" />
+                <div class="d-flex justify-content-between">
+                    <small>A-</small><small id="a11yFontValue">100%</small><small>A+</small>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Modo daltonismo</label>
+                <select id="a11yCvdMode" class="form-select">
+                    <option value="none">Ninguno</option>
+                    <option value="prot">Protanopia</option>
+                    <option value="deut">Deuteranopia</option>
+                    <option value="trit">Tritanopia</option>
+                </select>
+            </div>
+
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="a11yHighContrast">
+                <label class="form-check-label" for="a11yHighContrast">Alto contraste</label>
+            </div>
+
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="a11yUnderlineLinks">
+                <label class="form-check-label" for="a11yUnderlineLinks">Subrayar enlaces</label>
+            </div>
+
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="a11yDyslexiaFont">
+                <label class="form-check-label" for="a11yDyslexiaFont">Fuente legible (dislexia)</label>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="a11yReduceMotion">
+                <label class="form-check-label" for="a11yReduceMotion">Reducir animaciones</label>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header"><i class="bi bi-megaphone"></i> Texto a voz</div>
+                <div class="card-body">
+                    <div class="mb-2">
+                        <label for="a11yVoiceSelect" class="form-label">Voz</label>
+                        <select id="a11yVoiceSelect" class="form-select"></select>
+                    </div>
+                    <div class="btn-group d-flex" role="group" aria-label="Controles TTS">
+                        <button id="ttsReadSelection" class="btn btn-outline-primary"><i class="bi bi-cursor-text"></i> Leer selección</button>
+                        <button id="ttsReadPage" class="btn btn-primary"><i class="bi bi-file-earmark-text"></i> Leer página</button>
+                    </div>
+                    <div class="btn-group d-flex mt-2" role="group">
+                        <button id="ttsPause" class="btn btn-outline-warning"><i class="bi bi-pause-circle"></i> Pausa</button>
+                        <button id="ttsResume" class="btn btn-outline-success"><i class="bi bi-play-circle"></i> Reanudar</button>
+                        <button id="ttsStop" class="btn btn-outline-danger"><i class="bi bi-stop-circle"></i> Detener</button>
+                    </div>
+                    <div id="ttsStatus" class="mt-2 small text-muted" aria-live="polite"></div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button id="a11yReset" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Restablecer
+                </button>
+                <button class="btn btn-success" id="a11yApply">
+                    <i class="bi bi-check2-circle"></i> Aplicar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    @RenderSection("Scripts", required: false)
+
+    <script>
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('loading-spinner');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (!href || href === '#') return;
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.modern-navbar');
+            if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
+        });
+
+        const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('animate-in'); });
+        }, observerOptions);
+        document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    </script>
+
+    <!-- JS de accesibilidad -->
+    <script src="~/js/accessibility.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

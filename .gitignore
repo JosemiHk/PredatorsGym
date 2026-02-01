@@ -1,0 +1,44 @@
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug*/
+[Rr]elease*/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Ll]og/
+[Ll]ogs/
+*.log
+
+# Test
+[Tt]est[Rr]esults/
+*.coverage
+*.coveragexml
+
+# IDEs
+.idea/
+.vscode/
+
+# Web
+node_modules/
+wwwroot/lib/
+wwwroot/dist/
+
+# Otros
+*.swp
+Thumbs.db
+.DS_Store
+
+# Opcional: si usas perfiles de publicación locales
+# Properties/PublishProfiles/*.pubxml.user
+
+# Opcional: si quieres mantener secretos fuera de git
+# appsettings.Development.json

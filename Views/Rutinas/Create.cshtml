@@ -4,86 +4,393 @@
     Layout = "_Layout";
 }
 
-<h2>Generar Rutina</h2>
+@section Styles {
+    <style>
+        /* Layout general */
+        .rutina-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: clamp(1rem, 3vw, 2rem);
+        }
 
-<form asp-action="GenerarRutina" method="post">
-    @Html.AntiForgeryToken()
+        .page-title {
+            display: flex;
+            gap: .75rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
 
-    <div asp-validation-summary="All" class="text-danger"></div>
+            .page-title h1 {
+                font-size: clamp(1.6rem, 4.5vw, 2rem);
+                margin: 0;
+                font-weight: 700;
+            }
 
-    <div class="mb-3">
-        <label asp-for="Genero" class="form-label"></label>
-        <input asp-for="Genero" class="form-control" />
-        <span asp-validation-for="Genero" class="text-danger"></span>
+        /* Grid responsive */
+        .form-grid {
+            display: grid;
+            gap: 1.25rem;
+        }
+
+        @@media (min-width: 768px) {
+            .form-grid.cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Secciones */
+        .section-card {
+            background: var(--white, #fff);
+            border: 1px solid var(--gray-200, #e2e8f0);
+            border-radius: var(--border-radius-lg, 14px);
+            box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,.06));
+            padding: 1.25rem 1.25rem 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .section-card:not(.accent):before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(120deg, var(--gray-50,#f8fafc) 0%, #ffffff 70%);
+                opacity: .4;
+                pointer-events: none;
+            }
+
+            .section-card h2 {
+                font-size: 1.05rem;
+                font-weight: 600;
+                letter-spacing: .5px;
+                margin: 0 0 .85rem;
+                display: flex;
+                align-items: center;
+                gap: .45rem;
+                text-transform: uppercase;
+                color: var(--gray-700,#374151);
+            }
+
+                .section-card h2 i {
+                    font-size: 1.1rem;
+                    color: var(--primary,#EF233C);
+                }
+
+        /* Inputs modernos */
+        .floating-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+        }
+
+            .floating-group label {
+                font-size: .75rem;
+                font-weight: 600;
+                letter-spacing: .5px;
+                text-transform: uppercase;
+                color: var(--gray-600,#475569);
+                margin-left: 2px;
+            }
+
+            .floating-group input.form-control,
+            .floating-group select.form-select {
+                border: 2px solid var(--gray-200,#e2e8f0);
+                background: var(--gray-50,#f8fafc);
+                font-size: .95rem;
+                padding: .65rem .75rem;
+                border-radius: 10px;
+                transition: .25s;
+            }
+
+                .floating-group input.form-control:focus,
+                .floating-group select.form-select:focus {
+                    border-color: var(--primary,#EF233C);
+                    background: #fff;
+                    box-shadow: 0 0 0 3px rgba(239,35,60,.15);
+                }
+
+        .helper {
+            font-size: .65rem;
+            color: var(--gray-500,#64748b);
+            letter-spacing: .4px;
+        }
+
+        /* Sliders */
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+        }
+
+            .slider-wrapper input[type=range] {
+                flex: 1;
+                accent-color: var(--primary,#EF233C);
+            }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: center;
+            font-size: .8rem;
+            font-weight: 600;
+            background: var(--gray-100,#f1f5f9);
+            padding: .35rem .55rem;
+            border-radius: 6px;
+            border: 1px solid var(--gray-200,#e2e8f0);
+        }
+
+        /* Checkbox / switch */
+        .switch-line {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+            padding: .5rem .75rem;
+            background: var(--gray-50,#f8fafc);
+            border: 1px solid var(--gray-200,#e2e8f0);
+            border-radius: 10px;
+        }
+
+            .switch-line input {
+                transform: scale(1.15);
+            }
+
+            .switch-line span {
+                font-size: .8rem;
+                font-weight: 600;
+                letter-spacing: .4px;
+                color: var(--gray-700,#374151);
+            }
+
+        /* Validación */
+        .validation-summary-errors {
+            background: #ffe3e3;
+            border: 1px solid #ffb3b3;
+            padding: .75rem .9rem;
+            border-radius: 10px;
+            font-size: .8rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Botón principal */
+        .btn-generate {
+            display: inline-flex;
+            align-items: center;
+            gap: .6rem;
+            font-weight: 600;
+            padding: .9rem 1.4rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            background: linear-gradient(135deg, var(--primary,#EF233C) 0%, var(--accent,#D90429) 100%);
+            border: none;
+            color: #fff;
+            box-shadow: 0 8px 20px -5px rgba(239,35,60,.4);
+            transition: .35s;
+            width: 100%;
+        }
+
+            .btn-generate:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 26px -6px rgba(239,35,60,.45);
+            }
+
+            .btn-generate:active {
+                transform: translateY(0);
+            }
+
+        /* Acciones móviles */
+        @@media (max-width: 576px) {
+            .btn-generate {
+                font-size: .95rem;
+            }
+        }
+
+        /* Etiquetas pequeñas */
+        .badge-hint {
+            background: var(--gray-100,#f1f5f9);
+            color: var(--gray-600,#475569);
+            font-size: .6rem;
+            font-weight: 600;
+            padding: .25rem .45rem;
+            border-radius: 5px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+    </style>
+}
+
+<div class="rutina-wrapper">
+    <div class="page-title">
+        <i class="bi bi-lightning-charge-fill text-primary fs-3"></i>
+        <h1>Generar Rutina Personalizada</h1>
     </div>
 
-    <div class="mb-3">
-        <label asp-for="Edad" class="form-label"></label>
-        <input asp-for="Edad" class="form-control" type="number" />
-        <span asp-validation-for="Edad" class="text-danger"></span>
-    </div>
+    <p class="text-muted mb-4">
+        Completa (o ajusta) los datos necesarios. Tu rutina se adaptará automáticamente a tu perfil físico,
+        objetivo y experiencia. Los valores ya cargados provienen de tu perfil.
+    </p>
 
-    <div class="mb-3">
-        <label asp-for="Altura" class="form-label"></label>
-        <input asp-for="Altura" class="form-control" step="0.01" />
-        <span asp-validation-for="Altura" class="text-danger"></span>
-    </div>
+    <form asp-action="GenerarRutina" method="post" novalidate>
+        @Html.AntiForgeryToken()
 
-    <div class="mb-3">
-        <label asp-for="Peso" class="form-label"></label>
-        <input asp-for="Peso" class="form-control" step="0.01" />
-        <span asp-validation-for="Peso" class="text-danger"></span>
-    </div>
+        <div asp-validation-summary="All" class="text-danger small"></div>
 
-    <div class="mb-3">
-        <label asp-for="Objetivo" class="form-label"></label>
-        <select asp-for="Objetivo" class="form-select">
-            <option>Perder peso</option>
-            <option>Desarrollo muscular</option>
-        </select>
-        <span asp-validation-for="Objetivo" class="text-danger"></span>
-    </div>
+        <!-- Sección: Datos Personales -->
+        <div class="section-card">
+            <h2><i class="bi bi-person-circle"></i> Datos Personales</h2>
+            <div class="form-grid cols-2">
+                <div class="floating-group">
+                    <label asp-for="Genero">Género</label>
+                    <select asp-for="Genero" class="form-select">
+                        <option value="">Seleccione...</option>
+                        <option>Masculino</option>
+                        <option>Femenino</option>
+                        <option>No especificado</option>
+                    </select>
+                    <span asp-validation-for="Genero" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="Experiencia" class="form-label"></label>
-        <select asp-for="Experiencia" class="form-select">
-            <option>Principiante</option>
-            <option>Intermedio</option>
-            <option>Avanzado</option>
-        </select>
-        <span asp-validation-for="Experiencia" class="text-danger"></span>
-    </div>
+                <div class="floating-group">
+                    <label asp-for="Edad">Edad</label>
+                    <div class="slider-wrapper">
+                        <input asp-for="Edad" type="range" min="12" max="120" />
+                        <div class="slider-value" id="valEdad"></div>
+                    </div>
+                    <span class="helper">Rango permitido: 12 - 120</span>
+                    <span asp-validation-for="Edad" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="PesoObjetivo" class="form-label"></label>
-        <input asp-for="PesoObjetivo" class="form-control" step="0.01" />
-        <span asp-validation-for="PesoObjetivo" class="text-danger"></span>
-    </div>
+                <div class="floating-group">
+                    <label asp-for="Altura">Altura (cm)</label>
+                    <div class="slider-wrapper">
+                        <input asp-for="Altura" type="range" min="50" max="250" step="1" />
+                        <div class="slider-value" id="valAltura"></div>
+                    </div>
+                    <span asp-validation-for="Altura" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="LugarEntrenamiento" class="form-label"></label>
-        <select asp-for="LugarEntrenamiento" class="form-select">
-            <option>Casa</option>
-            <option>Gimnasio</option>
-            <option>Ambos</option>
-        </select>
-        <span asp-validation-for="LugarEntrenamiento" class="text-danger"></span>
-    </div>
+                <div class="floating-group">
+                    <label asp-for="Peso">Peso (kg)</label>
+                    <div class="slider-wrapper">
+                        <input asp-for="Peso" type="range" min="1" max="250" step="0.5" />
+                        <div class="slider-value" id="valPeso"></div>
+                    </div>
+                    <span asp-validation-for="Peso" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
 
-    <div class="form-check mb-3">
-        <input asp-for="TieneImplementosBasicos" class="form-check-input" type="checkbox" />
-        <label asp-for="TieneImplementosBasicos" class="form-check-label">Tengo implementos básicos</label>
-    </div>
+        <!-- Sección: Objetivos -->
+        <div class="section-card">
+            <h2><i class="bi bi-bullseye"></i> Objetivos y Experiencia</h2>
+            <div class="form-grid cols-2">
+                <div class="floating-group">
+                    <label asp-for="Objetivo">Objetivo</label>
+                    <select asp-for="Objetivo" class="form-select">
+                        <option value="">Seleccione...</option>
+                        <option>Perder peso</option>
+                        <option>Desarrollo muscular</option>
+                        <option>Recomposición corporal</option>
+                        <option>Fuerza máxima</option>
+                        <option>Resistencia</option>
+                    </select>
+                    <span asp-validation-for="Objetivo" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label asp-for="DiasEntrenamiento" class="form-label"></label>
-        <input asp-for="DiasEntrenamiento" class="form-control" />
-        <span asp-validation-for="DiasEntrenamiento" class="text-danger"></span>
-    </div>
+                <div class="floating-group">
+                    <label asp-for="Experiencia">Nivel</label>
+                    <select asp-for="Experiencia" class="form-select">
+                        <option value="">Seleccione...</option>
+                        <option>Principiante</option>
+                        <option>Intermedio</option>
+                        <option>Avanzado</option>
+                    </select>
+                    <span asp-validation-for="Experiencia" class="text-danger small"></span>
+                </div>
 
-    <button type="submit" class="btn btn-primary">Generar Rutina</button>
-</form>
+                <div class="floating-group">
+                    <label asp-for="PesoObjetivo">Peso Objetivo (kg)</label>
+                    <div class="slider-wrapper">
+                        <input asp-for="PesoObjetivo" type="range" min="1" max="250" step="0.5" />
+                        <div class="slider-value" id="valPesoObj"></div>
+                    </div>
+                    <span asp-validation-for="PesoObjetivo" class="text-danger small"></span>
+                </div>
+
+                <div class="floating-group">
+                    <label asp-for="DiasEntrenamiento">Días/Semana</label>
+                    <div class="slider-wrapper">
+                        <input asp-for="DiasEntrenamiento" type="range" min="1" max="7" step="1" />
+                        <div class="slider-value" id="valDias"></div>
+                    </div>
+                    <span class="helper">Recomendado: según nivel y recuperación</span>
+                    <span asp-validation-for="DiasEntrenamiento" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección: Configuración Entrenamiento -->
+        <div class="section-card">
+            <h2><i class="bi bi-gear-wide-connected"></i> Configuración</h2>
+            <div class="form-grid cols-2">
+                <div class="floating-group">
+                    <label asp-for="LugarEntrenamiento">Lugar</label>
+                    <select asp-for="LugarEntrenamiento" class="form-select">
+                        <option value="">Seleccione...</option>
+                        <option>Casa</option>
+                        <option>Gimnasio</option>
+                        <option>Ambos</option>
+                    </select>
+                    <span asp-validation-for="LugarEntrenamiento" class="text-danger small"></span>
+                </div>
+
+                <div class="floating-group">
+                    <label class="form-label">Implementos básicos</label>
+                    <div class="switch-line">
+                        <input asp-for="TieneImplementosBasicos" type="checkbox" />
+                        <span>Dispongo de mancuernas / bandas</span>
+                    </div>
+                    <span asp-validation-for="TieneImplementosBasicos" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="mt-4">
+            <button type="submit" class="btn-generate" id="btnGenerar">
+                <i class="bi bi-lightning"></i>
+                Generar Rutina
+            </button>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Sincroniza y muestra valores actuales de sliders
+        function syncValue(selector, targetId, suffix = "") {
+            const el = document.querySelector(selector);
+            const box = document.getElementById(targetId);
+            if (!el || !box) return;
+            const update = () => box.textContent = el.value + suffix;
+            el.addEventListener('input', update);
+            update();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            syncValue('input[name="Edad"]', 'valEdad', ' años');
+            syncValue('input[name="Altura"]', 'valAltura', ' cm');
+            syncValue('input[name="Peso"]', 'valPeso', ' kg');
+            syncValue('input[name="PesoObjetivo"]', 'valPesoObj', ' kg');
+            syncValue('input[name="DiasEntrenamiento"]', 'valDias', ' días');
+
+            // Feedback botón
+            const btn = document.getElementById('btnGenerar');
+            const form = btn?.closest('form');
+            form?.addEventListener('submit', () => {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generando...';
+            });
+        });
+    </script>
 }

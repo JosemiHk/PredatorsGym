@@ -4,13 +4,422 @@
     Layout = "_Layout";
 }
 
-<p class="text-muted">Vista: RutinaGenerada.cshtml</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/rutina.css" asp-append-version="true" />
+}
 
-<h2>Tu rutina personalizada</h2>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">📋 Tu Rutina Personalizada</h4>
+                    <div>
+                        <button id="startWorkoutBtn" class="btn btn-success btn-lg me-2">
+                            🏋️ Comenzar Entrenamiento
+                        </button>
+                        <button id="pauseWorkoutBtn" class="btn btn-warning" style="display: none;">
+                            ⏸️ Pausar
+                        </button>
+                        <button id="resumeWorkoutBtn" class="btn btn-info" style="display: none;">
+                            ▶️ Reanudar
+                        </button>
+                        <button id="stopWorkoutBtn" class="btn btn-danger" style="display: none;">
+                            ⏹️ Detener
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model != null)
+                    {
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <strong>📊 IMC:</strong> @Model.IMC.ToString("F1") (@Model.EstadoIMC)
+                            </div>
+                            <div class="col-md-3">
+                                <strong>🎯 Objetivo:</strong> @Model.Objetivo
+                            </div>
+                            <div class="col-md-3">
+                                <strong>💪 Experiencia:</strong> @Model.Experiencia
+                            </div>
+                            <div class="col-md-3">
+                                <strong>📅 Días/semana:</strong> @Model.DiasEntrenamiento
+                            </div>
+                        </div>
 
-<pre>
-    @Model.RutinaGenerada
-</pre>
+                        <div class="rutina-content">
+                            @if (!string.IsNullOrEmpty(Model.RutinaGenerada))
+                            {
+                                <pre class="bg-light p-3 rounded">@Model.RutinaGenerada</pre>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <strong>⚠️ Rutina vacía:</strong> No se pudo cargar el contenido de la rutina.
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-danger">
+                            <strong>❌ Error:</strong> No se pudo cargar la rutina. El modelo está vacío.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
 
-<a class="btn btn-secondary mt-3" asp-action="Create">Volver a generar</a>
-    
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">🎧 Control de Entrenamiento</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Estado del entrenamiento -->
+                    <div id="workoutStatus" class="alert alert-info">
+                        <strong>Estado:</strong> <span id="statusText">Listo para comenzar</span>
+                    </div>
+
+                    <!-- Ejercicio actual -->
+                    <div id="currentExercise" style="display: none;">
+                        <h6>📍 Ejercicio Actual:</h6>
+                        <div class="card bg-primary text-white mb-3">
+                            <div class="card-body">
+                                <h5 id="exerciseName">-</h5>
+                                <p id="exerciseDetails" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timer/Contador -->
+                    <div id="workoutTimer" style="display: none;">
+                        <h6>⏱️ Tiempo:</h6>
+                        <div class="text-center">
+                            <span id="timerDisplay" class="h4 text-primary">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Descanso -->
+                    <div id="restTimer" style="display: none;" class="text-center">
+                        <h6>😴 Tiempo de Descanso:</h6>
+                        <div class="text-center">
+                            <span id="restDisplay" class="h4 text-warning">00:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Control de volumen -->
+                    <div class="mb-3">
+                        <label for="volumeControl" class="form-label">🔊 Volumen:</label>
+                        <input type="range" class="form-range" id="volumeControl" min="0" max="100" value="70">
+                        <audio id="workoutAudio" preload="metadata"></audio>
+                    </div>
+
+                    <!-- Log de mensajes -->
+                    <div id="workoutLog" class="mt-3">
+                        <h6>📝 Log de Entrenamiento:</h6>
+                        <div id="logContent" class="border rounded p-2" style="height: 200px; overflow-y: auto; background-color: #f8f9fa;">
+                            <small class="text-muted">Los mensajes de entrenamiento aparecerán aquí...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a class="btn btn-secondary" asp-action="Create">🔄 Generar Nueva Rutina</a>
+    <a class="btn btn-info" asp-action="Index">📊 Mis Rutinas</a>
+</div>
+
+<!-- Debug Info (solo en desarrollo) -->
+@if (Context.Request.Host.Host == "localhost")
+{
+    <div class="mt-4 p-3 border rounded bg-light">
+        <h6>🔧 Información de Debug:</h6>
+        <ul>
+            <li><strong>Modelo nulo:</strong> @(Model == null ? "SÍ" : "NO")</li>
+            @if (Model != null)
+            {
+                <li><strong>ID de Rutina:</strong> @Model.Id</li>
+                <li><strong>Usuario ID:</strong> @Model.UsuarioId</li>
+                <li><strong>Fecha Creación:</strong> @Model.FechaCreacion</li>
+                <li><strong>Longitud Rutina:</strong> @(Model.RutinaGenerada?.Length ?? 0) caracteres</li>
+                <li><strong>Rutina vacía:</strong> @(string.IsNullOrEmpty(Model.RutinaGenerada) ? "SÍ" : "NO")</li>
+            }
+        </ul>
+    </div>
+}
+
+@section Scripts {
+    <!-- ✅ CDN de SignalR OBLIGATORIO -->
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script>
+        // Variables globales
+        let connection;
+        let workoutTimer;
+        let restTimer;
+        let currentRoutineId = @(Model?.Id ?? 0);
+        let workoutStartTime;
+        let isWorkoutActive = false;
+
+        // ✅ FUNCIÓN DE LOGGING MEJORADA
+        function logMessage(message, type = 'info') {
+            console.log(`[${new Date().toLocaleTimeString()}] ${message}`);
+
+            const logContent = document.getElementById('logContent');
+            if (!logContent) return;
+
+            const timestamp = new Date().toLocaleTimeString();
+            const messageClass = type === 'error' ? 'text-danger' :
+                                type === 'warning' ? 'text-warning' : 'text-dark';
+
+            logContent.innerHTML += `
+                <div class="${messageClass}">
+                    <small class="text-muted">[${timestamp}]</small> ${message}
+                </div>
+            `;
+
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+
+        // ✅ INICIALIZACIÓN ROBUSTA
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 DOM loaded');
+            logMessage("🔧 Página cargada. Inicializando...");
+
+            // ✅ VERIFICAR SIGNALR DISPONIBLE
+            if (typeof signalR === 'undefined') {
+                console.error('❌ SignalR not available!');
+                logMessage("❌ SignalR no disponible. Verifique la conexión a internet.", 'error');
+
+                const statusDiv = document.getElementById('workoutStatus');
+                if (statusDiv) {
+                    statusDiv.className = 'alert alert-danger';
+                    statusDiv.innerHTML = '<strong>Error:</strong> SignalR no disponible. Recargue la página.';
+                }
+                return;
+            }
+
+            console.log('✅ SignalR available');
+            logMessage("✅ SignalR disponible");
+
+            // Verificar ID de rutina
+            console.log('🔧 Routine ID:', currentRoutineId);
+            if (currentRoutineId > 0) {
+                initializeSignalR();
+            } else {
+                console.warn('⚠️ Invalid routine ID');
+                logMessage("❌ ID de rutina inválido", 'error');
+            }
+
+            // Configurar controles
+            setupEventListeners();
+        });
+
+        // ✅ INICIALIZACIÓN SIGNALR
+        async function initializeSignalR() {
+            try {
+                logMessage("🔗 Iniciando conexión SignalR...");
+
+                connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/workoutHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                // Event handlers
+                connection.on("ReceiveAudio", function (audioData) {
+                    console.log("🎵 Audio received:", audioData.length);
+                    playAudio(audioData);
+                    logMessage("🎵 Reproduciendo audio...");
+                });
+
+                connection.on("ReceiveExerciseStart", function (exercise) {
+                    console.log("🏁 Exercise start:", exercise);
+                    showCurrentExercise(exercise);
+                    logMessage(`🏁 Iniciando: ${exercise.Name}`);
+                });
+
+                connection.on("ReceiveExerciseEnd", function (exercise) {
+                    logMessage(`✅ Completado: ${exercise.Name}`);
+                });
+
+                connection.on("ReceiveRestTime", function (rest) {
+                    startRestTimer(rest.Duration);
+                    logMessage(`😴 Descanso: ${rest.Duration}s`);
+                });
+
+                connection.on("ReceiveWorkoutCompleted", function (data) {
+                    logMessage("🎉 ¡Entrenamiento completado!");
+                });
+
+                connection.on("ReceiveError", function (message) {
+                    logMessage(`❌ Error: ${message}`, 'error');
+                });
+
+                // Connection events
+                connection.onreconnecting(() => {
+                    logMessage("🔄 Reconectando...", 'warning');
+                });
+
+                connection.onreconnected(() => {
+                    logMessage("✅ Reconectado");
+                });
+
+                connection.onclose(() => {
+                    logMessage("❌ Conexión cerrada", 'error');
+                });
+
+                // Start connection
+                await connection.start();
+                logMessage("🔗 Conectado al servidor");
+
+                // Join group
+                await connection.invoke("JoinWorkoutGroup", currentRoutineId.toString());
+                logMessage(`👥 Unido al grupo ${currentRoutineId}`);
+
+            } catch (err) {
+                console.error("❌ SignalR error:", err);
+                logMessage(`❌ Error de conexión: ${err.message}`, 'error');
+
+                // Retry
+                setTimeout(() => {
+                    logMessage("🔄 Reintentando...");
+                    initializeSignalR();
+                }, 5000);
+            }
+        }
+
+        // ✅ AUDIO PLAYER
+        function playAudio(base64Data) {
+            try {
+                const audio = document.getElementById('workoutAudio');
+                if (!audio) {
+                    logMessage("❌ Audio element not found", 'error');
+                    return;
+                }
+
+                const volume = (document.getElementById('volumeControl')?.value || 70) / 100;
+
+                // Create blob
+                const binaryString = atob(base64Data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+
+                const blob = new Blob([bytes], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+
+                audio.src = url;
+                audio.volume = volume;
+
+                audio.play()
+                    .then(() => {
+                        logMessage("✅ Audio reproducido");
+                    })
+                    .catch(error => {
+                        logMessage(`❌ Error audio: ${error.message}`, 'error');
+                    });
+
+            } catch (error) {
+                logMessage(`❌ Error procesando audio: ${error.message}`, 'error');
+            }
+        }
+
+        // ✅ EVENT LISTENERS
+        function setupEventListeners() {
+            const startBtn = document.getElementById('startWorkoutBtn');
+            if (startBtn) {
+                startBtn.addEventListener('click', async function() {
+                    if (currentRoutineId <= 0) {
+                        logMessage("❌ ID de rutina inválido", 'error');
+                        return;
+                    }
+
+                    logMessage(`🚀 Iniciando entrenamiento ${currentRoutineId}`);
+
+                    try {
+                        const response = await fetch(`/api/workout/start/${currentRoutineId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            logMessage("✅ Entrenamiento iniciado");
+                            console.log("Server response:", result);
+                        } else {
+                            const error = await response.text();
+                            logMessage(`❌ Error servidor: ${error}`, 'error');
+                        }
+                    } catch (error) {
+                        logMessage(`❌ Error red: ${error.message}`, 'error');
+                    }
+                });
+            }
+
+            // Volume control
+            const volumeControl = document.getElementById('volumeControl');
+            if (volumeControl) {
+                volumeControl.addEventListener('input', function() {
+                    const audio = document.getElementById('workoutAudio');
+                    if (audio) {
+                        audio.volume = this.value / 100;
+                        logMessage(`🔊 Volumen: ${this.value}%`);
+                    }
+                });
+            }
+        }
+
+        // ✅ HELPER FUNCTIONS
+        function showCurrentExercise(exercise) {
+            const div = document.getElementById('currentExercise');
+            if (div) {
+                div.style.display = 'block';
+                const name = document.getElementById('exerciseName');
+                const details = document.getElementById('exerciseDetails');
+
+                if (name) name.textContent = exercise.Name;
+                if (details) details.textContent = `${exercise.Series} × ${exercise.Repetitions}`;
+            }
+        }
+
+        function startRestTimer(duration) {
+            const div = document.getElementById('restTimer');
+            if (div) {
+                div.style.display = 'block';
+                let remaining = duration;
+
+                restTimer = setInterval(() => {
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    const display = document.getElementById('restDisplay');
+
+                    if (display) {
+                        display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    }
+
+                    remaining--;
+                    if (remaining < 0) {
+                        clearInterval(restTimer);
+                        div.style.display = 'none';
+                    }
+                }, 1000);
+            }
+        }
+
+        //  CLEANUP
+        window.addEventListener('beforeunload', async function() {
+            if (connection && connection.state === signalR.HubConnectionState.Connected) {
+                try {
+                    await connection.invoke("LeaveWorkoutGroup", currentRoutineId.toString());
+                    await connection.stop();
+                } catch (err) {
+                    console.error("Cleanup error:", err);
+                }
+            }
+        });
+    </script>
+}

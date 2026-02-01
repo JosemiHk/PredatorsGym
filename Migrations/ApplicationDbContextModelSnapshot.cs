@@ -224,6 +224,240 @@ namespace PredatorsGym.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PredatorsGym.Models.Ejercicio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DuracionEstimada")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Instrucciones")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Orden")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Repeticiones")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RutinaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Series")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TiempoDescanso")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Orden")
+                        .HasDatabaseName("IX_Ejercicios_Orden");
+
+                    b.HasIndex("RutinaId")
+                        .HasDatabaseName("IX_Ejercicios_RutinaId");
+
+                    b.HasIndex("RutinaId", "Orden")
+                        .HasDatabaseName("IX_Ejercicios_RutinaId_Orden");
+
+                    b.ToTable("Ejercicios", t =>
+                        {
+                            t.HasCheckConstraint("CK_Ejercicios_OrdenValido", "[Orden] >= 1");
+
+                            t.HasCheckConstraint("CK_Ejercicios_RepeticionesValidas", "[Repeticiones] >= 1 AND [Repeticiones] <= 100");
+
+                            t.HasCheckConstraint("CK_Ejercicios_SeriesValidas", "[Series] >= 1 AND [Series] <= 10");
+                        });
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Membresia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("EsActiva")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("FechaCancelacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MetodoPago")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NotasCancelacion")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<decimal>("Precio")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<string>("TipoMembresia")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TransaccionId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EsActiva")
+                        .HasDatabaseName("IX_Membresias_EsActiva");
+
+                    b.HasIndex("FechaFin")
+                        .HasDatabaseName("IX_Membresias_FechaFin");
+
+                    b.HasIndex("FechaInicio")
+                        .HasDatabaseName("IX_Membresias_FechaInicio");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("IX_Membresias_UsuarioId");
+
+                    b.HasIndex("UsuarioId", "EsActiva", "FechaFin")
+                        .HasDatabaseName("IX_Membresias_Usuario_Activa_Fin");
+
+                    b.ToTable("Membresias", t =>
+                        {
+                            t.HasCheckConstraint("CK_Membresias_FechaFinMayor", "[FechaFin] > [FechaInicio]");
+
+                            t.HasCheckConstraint("CK_Membresias_PrecioPositivo", "[Precio] > 0");
+
+                            t.HasCheckConstraint("CK_Membresias_TipoValido", "[TipoMembresia] IN ('Básico', 'Premium', 'Elite')");
+                        });
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.PerfilUsuario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("Altura")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Apellidos")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("DiasEntrenamientoSemana")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DuracionPreferida")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FechaActualizacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaNacimiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Genero")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<byte[]>("ImagenPerfil")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("LesionesLimitaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("NivelExperiencia")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Nombre")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ObjetivoPrincipal")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal?>("PesoActual")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal?>("PesoObjetivo")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("Telefono")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TipoImagen")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UltimaActividad")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UsuarioId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechaActualizacion")
+                        .HasDatabaseName("IX_PerfilesUsuarios_FechaActualizacion");
+
+                    b.HasIndex("UltimaActividad")
+                        .HasDatabaseName("IX_PerfilesUsuarios_UltimaActividad");
+
+                    b.HasIndex("UsuarioId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PerfilesUsuarios_UsuarioId_Unique");
+
+                    b.ToTable("PerfilesUsuarios", t =>
+                        {
+                            t.HasCheckConstraint("CK_PerfilesUsuarios_AlturaValida", "[Altura] IS NULL OR ([Altura] >= 50 AND [Altura] <= 300)");
+
+                            t.HasCheckConstraint("CK_PerfilesUsuarios_DiasValidos", "[DiasEntrenamientoSemana] IS NULL OR ([DiasEntrenamientoSemana] >= 1 AND [DiasEntrenamientoSemana] <= 7)");
+
+                            t.HasCheckConstraint("CK_PerfilesUsuarios_PesoValido", "[PesoActual] IS NULL OR ([PesoActual] > 0 AND [PesoActual] <= 500)");
+                        });
+                });
+
             modelBuilder.Entity("PredatorsGym.Models.Rutina", b =>
                 {
                     b.Property<int>("Id")
@@ -235,38 +469,68 @@ namespace PredatorsGym.Migrations
                     b.Property<double>("Altura")
                         .HasColumnType("float");
 
+                    b.Property<string>("CreadoPor")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("DiasEntrenamiento")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("DuracionTotalMinutos")
+                        .HasColumnType("int");
 
                     b.Property<int>("Edad")
                         .HasColumnType("int");
 
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("EstadoIMC")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Experiencia")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("FechaFinEntrenamiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaInicioEntrenamiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaModificacion")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Genero")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<double>("IMC")
                         .HasColumnType("float");
 
                     b.Property<string>("LugarEntrenamiento")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Objetivo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<double>("Peso")
                         .HasColumnType("float");
@@ -276,18 +540,37 @@ namespace PredatorsGym.Migrations
 
                     b.Property<string>("RutinaGenerada")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(MAX)");
 
                     b.Property<bool>("TieneImplementosBasicos")
                         .HasColumnType("bit");
 
                     b.Property<string>("UsuarioId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Rutinas");
+                    b.HasIndex("Estado")
+                        .HasDatabaseName("IX_Rutinas_Estado");
+
+                    b.HasIndex("FechaCreacion")
+                        .HasDatabaseName("IX_Rutinas_FechaCreacion");
+
+                    b.HasIndex("UsuarioId")
+                        .HasDatabaseName("IX_Rutinas_UsuarioId");
+
+                    b.HasIndex("UsuarioId", "FechaCreacion", "Estado")
+                        .HasDatabaseName("IX_Rutinas_Usuario_Fecha_Estado");
+
+                    b.ToTable("Rutinas", t =>
+                        {
+                            t.HasCheckConstraint("CK_Rutinas_AlturaValida", "[Altura] >= 50 AND [Altura] <= 300");
+
+                            t.HasCheckConstraint("CK_Rutinas_EdadValida", "[Edad] >= 12 AND [Edad] <= 120");
+
+                            t.HasCheckConstraint("CK_Rutinas_PesoValido", "[Peso] > 0 AND [Peso] <= 500");
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -339,6 +622,49 @@ namespace PredatorsGym.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Ejercicio", b =>
+                {
+                    b.HasOne("PredatorsGym.Models.Rutina", "Rutina")
+                        .WithMany("Ejercicios")
+                        .HasForeignKey("RutinaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Rutina");
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Membresia", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.PerfilUsuario", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Rutina", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PredatorsGym.Models.Rutina", b =>
+                {
+                    b.Navigation("Ejercicios");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,0 +1,147 @@
+﻿/* Skip link */
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #000;
+    color: #fff;
+    padding: .5rem .75rem;
+    z-index: 3000;
+}
+
+    .skip-link:focus {
+        left: 8px;
+        top: 8px;
+        border-radius: .25rem;
+    }
+
+/* Escala de fuente global */
+html {
+    --a11y-font-scale: 1;
+    font-size: calc(16px * var(--a11y-font-scale));
+}
+
+/* FAB */
+.a11y-fab {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    background: #0d6efd;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25);
+    z-index: 2600;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+    .a11y-fab:hover {
+        filter: brightness(0.95);
+    }
+
+/* Panel flotante */
+.a11y-panel {
+    position: fixed;
+    right: 18px;
+    bottom: 86px;
+    width: min(360px, 92vw);
+    max-height: 80vh;
+    overflow: auto;
+    background: #fff;
+    color: #212529;
+    border: 1px solid rgba(0,0,0,.1);
+    border-radius: .75rem;
+    box-shadow: 0 12px 24px rgba(0,0,0,.2);
+    z-index: 2600;
+    padding: .75rem;
+}
+
+    .a11y-panel[hidden] {
+        display: none !important;
+    }
+
+.a11y-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .25rem .25rem .5rem .5rem;
+    border-bottom: 1px solid rgba(0,0,0,.075);
+}
+
+.a11y-panel-body {
+    padding: .75rem .5rem .25rem .5rem;
+}
+
+/* Alto contraste */
+body.a11y-high-contrast {
+    --primary: #000000;
+    --accent: #000000;
+    --white: #ffffff;
+    --gray-50: #f8f9fa;
+    --gray-200: #d1d5db;
+    --gray-600: #374151;
+    color: #000 !important;
+    background: #fff !important;
+}
+
+    body.a11y-high-contrast .modern-navbar,
+    body.a11y-high-contrast .routine-header,
+    body.a11y-high-contrast .login-header {
+        background: #000 !important;
+        color: #fff !important;
+    }
+
+    body.a11y-high-contrast .btn,
+    body.a11y-high-contrast .badge {
+        filter: none !important;
+    }
+
+/* Subrayado enlaces */
+body.a11y-underline-links a {
+    text-decoration: underline !important;
+}
+
+/* Fuente legible (dislexia) */
+@font-face {
+    font-family: 'Atkinson Hyperlegible';
+    font-style: normal;
+    font-weight: 400;
+    src: local('Atkinson Hyperlegible'), local('Atkinson-Hyperlegible');
+}
+
+body.a11y-dyslexia-font {
+    font-family: 'Atkinson Hyperlegible', Arial, Verdana, sans-serif !important;
+}
+
+/* Reducir animaciones */
+body.a11y-reduce-motion,
+body.a11y-reduce-motion * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
+/* Daltonismo: paletas seguras (ajusta si usas variables propias) */
+body.a11y-cvd-prot {
+    --primary: #3C6E71;
+    --accent: #284B63;
+}
+
+body.a11y-cvd-deut {
+    --primary: #2A9D8F;
+    --accent: #264653;
+}
+
+body.a11y-cvd-trit {
+    --primary: #6B705C;
+    --accent: #CB997E;
+}
+
+/* Mejoras menores */
+.a11y-panel .card-header {
+    background: var(--gray-50, #f8f9fa);
+}

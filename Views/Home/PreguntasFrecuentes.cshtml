@@ -1,0 +1,219 @@
+﻿@model List<PredatorsGym.Controllers.CategoriaFAQ>
+@{
+    ViewData["Title"] = "Preguntas Frecuentes - Ayuda";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/faq.css" asp-append-version="true" />
+}
+
+<div class="faq-container">
+    <!-- Hero Section -->
+    <section class="faq-hero">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="hero-content animate-on-scroll">
+                        <div class="hero-badge">
+                            <i class="bi bi-question-circle"></i>
+                            <span>Centro de Ayuda</span>
+                        </div>
+                        <h1 class="hero-title">
+                            ¿Necesitas 
+                            <span class="text-gradient">Ayuda</span>?
+                        </h1>
+                        <p class="hero-subtitle">
+                            Encuentra respuestas rápidas a las preguntas más frecuentes sobre 
+                            Predator's. Si no encuentras lo que buscas, contáctanos directamente.
+                        </p>
+                        
+                        <!-- Búsqueda de FAQ -->
+                        <div class="search-container">
+                            <div class="search-input-container">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" id="faqSearch" class="search-input" 
+                                       placeholder="Buscar en las preguntas frecuentes...">
+                                <button type="button" class="search-clear" id="clearSearch" style="display: none;">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categorías FAQ -->
+    <section class="faq-content">
+        <div class="container">
+            <!-- Navegación por categorías -->
+            <div class="category-nav animate-on-scroll">
+                <div class="nav-scroll">
+                    <button class="category-btn active" data-category="all">
+                        <i class="bi bi-grid"></i>
+                        <span>Todas</span>
+                    </button>
+                    @foreach (var categoria in Model)
+                    {
+                        <button class="category-btn" data-category="@categoria.Nombre.Replace(" ", "-").ToLower()">
+                            <i class="@categoria.Icono"></i>
+                            <span>@categoria.Nombre</span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Contador de resultados -->
+            <div class="results-info animate-on-scroll" id="resultsInfo">
+                <span class="results-count">@Model.Sum(c => c.Preguntas.Count) preguntas encontradas</span>
+            </div>
+
+            <!-- FAQ Categories -->
+            <div class="faq-categories">
+                @foreach (var categoria in Model)
+                {
+                    <div class="faq-category animate-on-scroll" 
+                         data-category="@categoria.Nombre.Replace(" ", "-").ToLower()"
+                         style="--delay: @(Model.IndexOf(categoria) * 100)ms">
+                        
+                        <div class="category-header">
+                            <div class="category-icon bg-@categoria.Color">
+                                <i class="@categoria.Icono"></i>
+                            </div>
+                            <div class="category-info">
+                                <h3 class="category-title">@categoria.Nombre</h3>
+                                <p class="category-count">@categoria.Preguntas.Count preguntas</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion" id="accordion-@categoria.Nombre.Replace(" ", "-").ToLower()">
+                            @foreach (var pregunta in categoria.Preguntas)
+                            {
+                                var preguntaId = $"pregunta-{categoria.Nombre.Replace(" ", "-").ToLower()}-{categoria.Preguntas.IndexOf(pregunta)}";
+                                
+                                <div class="faq-item" data-search-content="@pregunta.Pregunta @pregunta.Respuesta">
+                                    <div class="accordion-item">
+                                        <h4 class="accordion-header">
+                                            <button class="accordion-button collapsed" 
+                                                    type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#@preguntaId">
+                                                <span class="question-text">@pregunta.Pregunta</span>
+                                                <span class="accordion-icon">
+                                                    <i class="bi bi-plus"></i>
+                                                </span>
+                                            </button>
+                                        </h4>
+                                        <div id="@preguntaId" 
+                                             class="accordion-collapse collapse" 
+                                             data-bs-parent="#accordion-@categoria.Nombre.Replace(" ", "-").ToLower()">
+                                            <div class="accordion-body">
+                                                <p class="answer-text">@pregunta.Respuesta</p>
+                                                <div class="answer-actions">
+                                                    <button type="button" class="btn-helpful" data-helpful="yes">
+                                                        <i class="bi bi-hand-thumbs-up"></i>
+                                                        Útil
+                                                    </button>
+                                                    <button type="button" class="btn-helpful" data-helpful="no">
+                                                        <i class="bi bi-hand-thumbs-down"></i>
+                                                        No útil
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- No results message -->
+            <div class="no-results" id="noResults" style="display: none;">
+                <div class="no-results-content">
+                    <div class="no-results-icon">🔍</div>
+                    <h3>No encontramos resultados</h3>
+                    <p>Intenta con otros términos de búsqueda o explora las categorías.</p>
+                    <button type="button" class="btn btn-primary" onclick="clearSearch()">
+                        <i class="bi bi-arrow-left"></i>
+                        Ver todas las preguntas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="contact-card animate-on-scroll">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <div class="contact-content">
+                            <h3>¿No encontraste lo que buscabas?</h3>
+                            <p>
+                                Nuestro equipo de soporte está aquí para ayudarte. 
+                                Contáctanos y te responderemos lo antes posible.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <div class="contact-actions">
+                            <a href="mailto:soporte@predatorsgym.com" class="btn btn-primary">
+                                <i class="bi bi-envelope"></i>
+                                Enviar Email
+                            </a>
+                            <div class="contact-info">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i>
+                                    Respondemos en 24h
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Links -->
+    <section class="quick-links-section">
+        <div class="container">
+            <div class="quick-links animate-on-scroll">
+                <h4>Enlaces útiles</h4>
+                <div class="links-grid">
+                    <a href="/Account/Register" class="quick-link">
+                        <i class="bi bi-person-plus"></i>
+                        <span>Crear Cuenta</span>
+                    </a>
+                    <a href="/Membresia" class="quick-link">
+                        <i class="bi bi-gem"></i>
+                        <span>Ver Planes</span>
+                    </a>
+                    <a href="/Account/Perfil" class="quick-link">
+                        <i class="bi bi-person-gear"></i>
+                        <span>Mi Perfil</span>
+                    </a>
+                    <a href="/Privacy" class="quick-link">
+                        <i class="bi bi-shield-check"></i>
+                        <span>Privacidad</span>
+                    </a>
+                    <a href="/Terms" class="quick-link">
+                        <i class="bi bi-file-text"></i>
+                        <span>Términos</span>
+                    </a>
+                    <a href="/Contact" class="quick-link">
+                        <i class="bi bi-headset"></i>
+                        <span>Contacto</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/faq.js" asp-append-version="true"></script>
+}
